@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webtoonflix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+      :root{
+        --bg:#141414; --bg-soft:#181818; --card:#1f1f1f;
+        --text:#e5e5e5; --muted:#a3a3a3; --accent:#e50914;
+        --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
+        --radius:14px; --shadow: 0 20px 40px rgba(0,0,0,.5);
+      }
+      html,body{height:100%}
+      body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}
+      a{color:inherit;text-decoration:none}
+      .app{min-height:100vh}
+
+      .nav{position:fixed;top:0;left:0;right:0;z-index:50;height:64px;display:flex;align-items:center;gap:24px;padding:0 32px;background:linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,0))}
+      .nav .logo{font-weight:900;color:var(--accent);letter-spacing:.5px}
+      .nav .links a{margin-right:16px;opacity:.9}
+      .nav .links a:hover{opacity:1}
+      .nav .search{margin-left:auto;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);padding:6px 10px;border-radius:999px}
+      .nav .search input{background:transparent;border:none;outline:none;color:var(--text);width:220px}
+
+      .hero{height:68vh;position:relative;display:flex;align-items:flex-end;padding:24vh 48px 48px;background:#000;overflow:hidden}
+      .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.2) 0%, rgba(20,20,20,.9) 75%)}
+      .hero .bg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:brightness(.65);transform:scale(1.05);animation:slow-zoom 30s ease-in-out infinite alternate}
+      @keyframes slow-zoom{from{transform:scale(1.03)} to{transform:scale(1.12)}}
+      .hero .content{position:relative;z-index:2;max-width:780px}
+      .hero h1{font-size:48px;line-height:1.05;margin:0 0 12px;text-shadow:var(--shadow)}
+      .hero p{opacity:.9}
+      .buttons{display:flex;gap:12px;margin-top:16px}
+      .btn{border:none;padding:12px 18px;border-radius:8px;font-weight:700;cursor:pointer;transition:transform .2s ease, box-shadow .2s ease, background .2s ease}
+      .btn.primary{background:var(--text);color:#000}
+      .btn.primary:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+      .btn.secondary{background:rgba(255,255,255,.12);color:#fff}
+      .btn.secondary:hover{background:rgba(255,255,255,.18)}
+
+      .section{padding:24px 0}
+      .row{position:relative;padding:0 48px}
+      .row h3{margin:8px 0 10px 6px}
+      .rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(180px,1fr);gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:12px}
+      .rail::-webkit-scrollbar{height:8px}
+      .rail::-webkit-scrollbar-thumb{background:#333;border-radius:999px}
+      .card{scroll-snap-align:start;background:var(--card);border-radius:var(--radius);height:240px;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s ease, filter .2s ease}
+      .card:hover{transform:scale(1.06);z-index:2;filter:brightness(1.05)}
+      .card .cover{position:absolute;inset:0;background:#222;background-size:cover;background-position:center;filter:brightness(.9)}
+      .card .shade{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.75) 95%)}
+      .card .meta{position:absolute;left:10px;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
+      .title{font-weight:700;text-shadow:var(--shadow)}
+      .muted{color:var(--muted);font-size:12px}
+      .arrow{position:absolute;top:50%;transform:translateY(-50%);height:44px;width:44px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-weight:900;border:1px solid rgba(255,255,255,.15)}
+      .arrow:hover{background:rgba(0,0,0,.65)}
+      .arrow.left{left:6px}.arrow.right{right:6px}
+
+      /* overlays sur la carte */
+      .badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:3px 8px;font-weight:700;font-size:12px}
+      .controls{position:absolute;top:8px;right:8px;display:flex;gap:6px}
+      .chipbtn{height:26px;min-width:26px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;cursor:pointer}
+      .chipbtn:hover{background:rgba(0,0,0,.75)}
+      .datepill{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.08);padding:2px 8px;border-radius:999px;font-size:11px;color:#cfcfcf}
+
+      /* dialogs */
+      dialog{border:none;border-radius:18px;background:var(--bg-soft);color:var(--text);width:84vw;max-width:1080px}
+      dialog::backdrop{background:rgba(0,0,0,.6)}
+      .modal{display:grid;grid-template-columns:360px 1fr;gap:24px;padding:20px}
+      .bigcover{height:300px;background:#222;border-radius:12px;background-size:cover;background-position:center}
+      .tag{display:inline-block;background:#222;color:#eee;padding:4px 8px;border-radius:999px;font-size:12px}
+      .form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+      .input, .select, .textarea{width:100%;background:#0f0f0f;border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:10px;padding:10px 12px;outline:none}
+      .textarea{min-height:92px;resize:vertical}
+      .footer-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+      .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.12);color:#e5e5e5}
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

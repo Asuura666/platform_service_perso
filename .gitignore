@@ -1,0 +1,46 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static/
+.env
+.env.*
+venv/
+.venv/
+.envrc
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Poetry / Pipenv
+.poetry/
+pip-wheel-metadata/
+pip-log.txt
+
+# Tests / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Node (si tu as un front)
+node_modules/
+dist/
+build/
+
+# Docker
+*.pid
+
+
+webtoon_platform.zip
+Projet_platform.zip
