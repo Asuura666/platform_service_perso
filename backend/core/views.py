@@ -67,14 +67,17 @@ class ContentViewSet(viewsets.ModelViewSet):
 
         # chapitre
         if chapter not in (None, ""):
-            up.last_chapter = str(chapter)
+            try:
+                up.last_chapter = int(chapter)
+            except (TypeError, ValueError):
+                up.last_chapter = None
         elif delta:
             try:
                 cur = int(up.last_chapter or 0)
             except (TypeError, ValueError):
                 cur = 0
             cur = max(0, cur + delta)
-            up.last_chapter = str(cur)
+            up.last_chapter = cur
 
         # date
         if when:

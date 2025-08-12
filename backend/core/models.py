@@ -56,8 +56,8 @@ User = get_user_model()
 class UserProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="progress")
     content = models.ForeignKey(Content, on_delete=models.CASCADE, related_name="progress")
-    last_chapter = models.ForeignKey(Chapter, null=True, blank=True, on_delete=models.SET_NULL, related_name="progress_set")
-    last_read_at = models.DateTimeField(auto_now=True)
+    last_chapter = models.IntegerField(null=True, blank=True)
+    last_read_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)
 
     class Meta:

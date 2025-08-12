@@ -54,7 +54,7 @@ OpenAPI docs (Swagger UI): **/api/docs/**
 - **FeatureCategory**: name, description
 - **Content**: title, author, language, status, rating, description, link, release_day, feature_category
 - **Chapter**: content FK, chapter_number, title, release_date, link
-- **UserProgress**: user FK, content FK, last_chapter FK, last_read_at, notes
+- **UserProgress**: user FK, content FK, last_chapter (int), last_read_at, notes
 
 ## CSV Importer
 The importer accepts flexible headers and tries to map common names:

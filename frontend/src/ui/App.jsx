@@ -208,7 +208,10 @@ function EditModal({open, item, onClose, onSaved}){
       // Si l'utilisateur a rempli chapitre/date → MAJ de sa progression
       if(form.my_last_chapter || form.my_last_read_at){
         const body = {}
-        if(form.my_last_chapter) body["chapter"] = String(form.my_last_chapter)
+        if(form.my_last_chapter){
+          const parsed = parseInt(form.my_last_chapter,10)
+          if(!isNaN(parsed)) body["chapter"] = parsed
+        }
         if(form.my_last_read_at) body["last_read_at"] = `${form.my_last_read_at}T00:00:00Z`
         await apiPOST(`contents/${item.id}/progress/`, body, token)
       }
