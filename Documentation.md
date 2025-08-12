@@ -18,7 +18,7 @@
   * `title`, `author`, `language`, `status` (`ongoing/completed/hiatus/unknown`),
     `rating` (float), `description`, `link`, `release_day`, `feature_category(FK)`, `cover_image`
 * `Chapter` (FK `content`, `chapter_number`, `title?`, `release_date?`, `link?`)
-* `UserProgress` (FK `user`, `content`, `last_chapter`, `last_read_at`, `notes`)
+* `UserProgress` (FK `user`, `content`, `last_chapter` int, `last_read_at`, `notes`)
 
 ### API (DRF)
 
