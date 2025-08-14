@@ -1,4 +1,4 @@
-# backend/core/views.py
+import logging
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django_filters.rest_framework import DjangoFilterBackend
@@ -11,6 +11,8 @@ from .serializers import (
     FeatureCategorySerializer,
     UserProgressSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 # -------- Categories --------
 class FeatureCategoryViewSet(viewsets.ModelViewSet):
@@ -27,9 +29,22 @@ class ContentViewSet(viewsets.ModelViewSet):
     serializer_class = ContentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
-    search_fields = ["title", "description", "author"]
+    search_fields = ["title", "description", "author", "language", "status", "feature_category__name"]
     ordering_fields = ["title", "created_at", "updated_at", "rating"]
     filterset_fields = ["feature_category", "status", "language"]
+
+    # Un peu de trace pour diagnostiquer les updates “200 mais pas d’effet”
+    def update(self, request, *args, **kwargs):
+        logger.info("UPDATE Content pk=%s data=%s", kwargs.get("pk"), request.data)
+        resp = super().update(request, *args, **kwargs)
+        logger.info("UPDATE OK Content pk=%s", kwargs.get("pk"))
+        return resp
+
+    def partial_update(self, request, *args, **kwargs):
+        logger.info("PATCH Content pk=%s data=%s", kwargs.get("pk"), request.data)
+        resp = super().partial_update(request, *args, **kwargs)
+        logger.info("PATCH OK Content pk=%s", kwargs.get("pk"))
+        return resp
 
     @decorators.action(
         detail=True,
