@@ -67,7 +67,7 @@ _(Permet de suivre la progression de lecture pour chaque utilisateur et pour cha
 - **id** : Identifiant unique (PK)
 - **user_id** : Référence à User (FK)
 - **content_id** : Référence à Content (FK)
-- **last_chapter_id** : Référence à Chapter (FK, optionnel – applicable pour les contenus sériés)
+- **last_chapter** : Dernier chapitre lu (numérique, optionnel)
 - **progress_date** : Date de la dernière mise à jour de la progression
 - **notes** : Commentaires ou remarques de l’utilisateur (optionnel)
 

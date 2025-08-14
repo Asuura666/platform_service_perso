@@ -21,7 +21,7 @@ urlpatterns = [
     # API
     path("api/", include(router.urls)),
 
-    # Auth JWT (Djoser)
+    # Auth JWT (Djoser / SimpleJWT)
     path("api/auth/", include("djoser.urls")),
     path("api/auth/", include("djoser.urls.jwt")),
 ]

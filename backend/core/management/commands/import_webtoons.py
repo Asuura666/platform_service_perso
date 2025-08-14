@@ -295,7 +295,10 @@ class Command(BaseCommand):
                         try:
                             up, _ = UserProgress.objects.get_or_create(user=target_user, content=content)
                             if last_ch:
-                                up.last_chapter = str(last_ch)
+                                try:
+                                    up.last_chapter = int(last_ch)
+                                except (TypeError, ValueError):
+                                    up.last_chapter = None
                             up.last_read_at = dt
                             up.save()
                             stats["progress"] += 1
