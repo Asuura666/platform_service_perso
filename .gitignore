@@ -40,6 +40,21 @@ build/
 
 # Docker
 *.pid
+# secrets & env
+.env
+*.env
+.env.*
+*.env.local
+
+# artefacts de build
+/staticfiles/
+/media/
+
+# python
+__pycache__/
+*.pyc
+
+ 
 
 
 webtoon_platform.zip

@@ -1,10 +1,6 @@
-FROM node:20-alpine
-WORKDIR /usr/src/app
-
-COPY package.json package-lock.json* ./
-RUN npm install
-
-# 👇 le contexte est déjà ./frontend
-COPY . ./
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host"]
+FROM node:20-slim as build
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm install --no-audit --legacy-peer-deps
+COPY frontend ./
+RUN npm run build
