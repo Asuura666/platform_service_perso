@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-background text-textLight font-sans antialiased transition-colors duration-300;
+    background-image: radial-gradient(circle at 20% 20%, rgba(42, 103, 255, 0.1), transparent 40%),
+      radial-gradient(circle at 80% 0%, rgba(42, 103, 255, 0.08), transparent 55%),
+      linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.98) 35%, #050505 100%);
+  }
+
+  ::selection {
+    @apply bg-accent text-white;
+  }
+
+  a {
+    @apply text-textLight transition-colors duration-200;
+  }
+
+  button {
+    @apply font-medium;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-panel/90 backdrop-blur-lg border border-muted/60 rounded-2xl shadow-panel;
+  }
+
+  .glow-border {
+    background:
+      linear-gradient(#0d0d0d, #0d0d0d) padding-box,
+      linear-gradient(135deg, rgba(42, 103, 255, 0.6), rgba(42, 103, 255, 0.15)) border-box;
+    border: 1px solid transparent;
+  }
+}

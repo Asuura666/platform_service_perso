@@ -1,0 +1,702 @@
+openapi: 3.0.3
+info:
+  title: Webtoon Book API
+  version: 1.0.0
+  description: API backend pour le projet Webtoon Book (Front AsuraComic Style)
+paths:
+  /api/auth/login/:
+    post:
+      operationId: api_auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/me/:
+    get:
+      operationId: api_auth_me_retrieve
+      description: Retourne le profil de l'utilisateur courant.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/auth/refresh/:
+    post:
+      operationId: api_auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: api_auth_register_create
+      description: Permet l'inscription d'un utilisateur.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/webtoons/:
+    get:
+      operationId: api_webtoons_list
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Lister les webtoons de l'utilisateur connecté
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Webtoon'
+          description: ''
+    post:
+      operationId: api_webtoons_create
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Créer un nouveau webtoon
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Webtoon'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Webtoon'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Webtoon'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webtoon'
+          description: ''
+  /api/webtoons/{id}/:
+    get:
+      operationId: api_webtoons_retrieve
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Récupérer le détail d'un webtoon
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webtoon'
+          description: ''
+    put:
+      operationId: api_webtoons_update
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Mettre à jour un webtoon
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Webtoon'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Webtoon'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Webtoon'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webtoon'
+          description: ''
+    patch:
+      operationId: api_webtoons_partial_update
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Modifier partiellement un webtoon
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWebtoon'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWebtoon'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWebtoon'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webtoon'
+          description: ''
+    delete:
+      operationId: api_webtoons_destroy
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Supprimer un webtoon
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/webtoons/{id}/chapters/:
+    get:
+      operationId: api_webtoons_chapters_list
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Lister les chapitres d'un webtoon
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Identifiant du webtoon
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chapter'
+          description: ''
+    post:
+      operationId: api_webtoons_chapters_create
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Lister les chapitres d'un webtoon
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Identifiant du webtoon
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chapter'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Chapter'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Chapter'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chapter'
+          description: ''
+  /api/webtoons/{id}/comments/:
+    get:
+      operationId: api_webtoons_comments_list
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Lister les commentaires d'un webtoon
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Identifiant du webtoon
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+          description: ''
+    post:
+      operationId: api_webtoons_comments_create
+      description: ViewSet principal gérant les webtoons de l'utilisateur connecté.
+      summary: Lister les commentaires d'un webtoon
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Identifiant du webtoon
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+          description: ''
+components:
+  schemas:
+    Chapter:
+      type: object
+      description: Serializer for Webtoon chapters.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        webtoon:
+          type: integer
+          readOnly: true
+        chapter_number:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        title:
+          type: string
+          maxLength: 200
+        release_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - chapter_number
+      - created_at
+      - id
+      - release_date
+      - title
+      - updated_at
+      - webtoon
+    Comment:
+      type: object
+      description: Serializer for Webtoon comments.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        webtoon:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        user:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - text
+      - updated_at
+      - user
+      - webtoon
+    PatchedWebtoon:
+      type: object
+      description: Serializer for Webtoon resources.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        type:
+          type: string
+          maxLength: 50
+        language:
+          type: string
+          maxLength: 50
+        rating:
+          type: number
+          format: double
+          maximum: 5.0
+          minimum: 0.0
+          description: Note entre 0 et 5.
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        chapter:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Dernier chapitre lu.
+        link:
+          type: string
+          format: uri
+          maxLength: 200
+        last_update:
+          type: string
+          format: date-time
+          readOnly: true
+        last_read_date:
+          type: string
+          format: date
+          nullable: true
+        comment:
+          type: string
+        image_url:
+          type: string
+          format: uri
+          maxLength: 200
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        chapters_count:
+          type: integer
+          readOnly: true
+        comments_count:
+          type: integer
+          readOnly: true
+    Register:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Nom d’utilisateur
+          description: Requis. 150 caractères maximum. Uniquement des lettres, nombres
+            et les caractères « @ », « . », « + », « - » et « _ ».
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+      required:
+      - email
+      - id
+      - password
+      - role
+      - username
+    RoleEnum:
+      enum:
+      - user
+      - admin
+      type: string
+      description: |-
+        * `user` - User
+        * `admin` - Administrator
+    StatusEnum:
+      enum:
+      - En cours
+      - Terminé
+      - Hiatus
+      type: string
+      description: |-
+        * `En cours` - En cours
+        * `Terminé` - Terminé
+        * `Hiatus` - Hiatus
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Nom d’utilisateur
+          description: Requis. 150 caractères maximum. Uniquement des lettres, nombres
+            et les caractères « @ », « . », « + », « - » et « _ ».
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 150
+        last_name:
+          type: string
+          title: Nom
+          maxLength: 150
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+      required:
+      - email
+      - id
+      - role
+      - username
+    Webtoon:
+      type: object
+      description: Serializer for Webtoon resources.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        type:
+          type: string
+          maxLength: 50
+        language:
+          type: string
+          maxLength: 50
+        rating:
+          type: number
+          format: double
+          maximum: 5.0
+          minimum: 0.0
+          description: Note entre 0 et 5.
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        chapter:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Dernier chapitre lu.
+        link:
+          type: string
+          format: uri
+          maxLength: 200
+        last_update:
+          type: string
+          format: date-time
+          readOnly: true
+        last_read_date:
+          type: string
+          format: date
+          nullable: true
+        comment:
+          type: string
+        image_url:
+          type: string
+          format: uri
+          maxLength: 200
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        chapters_count:
+          type: integer
+          readOnly: true
+        comments_count:
+          type: integer
+          readOnly: true
+      required:
+      - chapter
+      - chapters_count
+      - comments_count
+      - created_at
+      - id
+      - language
+      - last_update
+      - link
+      - rating
+      - title
+      - type
+      - updated_at
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

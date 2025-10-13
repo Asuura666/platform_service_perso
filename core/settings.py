@@ -35,8 +35,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_spectacular',
+    'drf_spectacular_sidecar',
     'accounts.apps.AccountsConfig',
-    'library.apps.LibraryConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -147,9 +148,10 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Platform Service API",
-    "DESCRIPTION": "API pour la plateforme de suivi des lectures (mangas, webtoons, sports...).",
+    "TITLE": "Webtoon Book API",
+    "DESCRIPTION": "API backend pour le projet Webtoon Book (Front AsuraComic Style)",
     "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 SIMPLE_JWT = {
