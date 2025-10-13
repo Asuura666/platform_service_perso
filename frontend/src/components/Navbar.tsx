@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import clsx from 'clsx'
-import { Menu, Moon, PlusCircle, Search, SunMedium } from 'lucide-react'
+import { LogIn, LogOut, Menu, Moon, PlusCircle, Search, SunMedium, User } from 'lucide-react'
 import { type ChangeEvent } from 'react'
 import { useTheme } from '@/providers/ThemeProvider'
 
@@ -12,16 +12,24 @@ type NavbarProps = {
   onAddWebtoon: () => void
   onToggleSidebar: () => void
   disableAddButton?: boolean
+  isAuthenticated: boolean
+  userName?: string
+  onAuthAction: () => void
+  onLogout: () => void
 }
 
 const Navbar = ({
   pageTitle = 'Webtoon Book',
-  subtitle = 'Retrouvez vos webtoons préférés et vos dernières lectures',
+  subtitle = 'Retrouvez vos webtoons preferes et vos dernieres lectures',
   searchValue,
   onSearchChange,
   onAddWebtoon,
   onToggleSidebar,
-  disableAddButton = false
+  disableAddButton = false,
+  isAuthenticated,
+  userName = '',
+  onAuthAction,
+  onLogout
 }: NavbarProps) => {
   const { theme, toggleTheme } = useTheme()
 
@@ -55,8 +63,50 @@ const Navbar = ({
             whileTap={{ scale: 0.96 }}
             type="button"
             onClick={toggleTheme}
-            className="group flex h-11 w-11 items-center justify-center rounded-2xl border border-muted/50 bg-surface/80 text-textLight/70 transition-all hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80"
-            aria-label="Changer de thème"
+            className="group hidden h-11 w-11 items-center justify-center rounded-2xl border border-muted/50 bg-surface/80 text-textLight/70 transition-all hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 sm:flex"
+            aria-label="Changer le theme"
+          >
+            {theme === 'dark' ? (
+              <SunMedium size={20} className="transition-transform group-hover:rotate-12" />
+            ) : (
+              <Moon size={19} className="transition-transform group-hover:-rotate-12" />
+            )}
+          </motion.button>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden items-center gap-2 rounded-2xl border border-muted/50 bg-surface/70 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-textLight/50 sm:flex">
+                <User size={16} />
+                {userName}
+              </span>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={onLogout}
+                className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-4 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <LogOut size={16} />
+                Se deconnecter
+              </motion.button>
+            </div>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              onClick={onAuthAction}
+              className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-4 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <LogIn size={16} />
+              Se connecter
+            </motion.button>
+          )}
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            type="button"
+            onClick={toggleTheme}
+            className="group flex h-11 w-11 items-center justify-center rounded-2xl border border-muted/50 bg-surface/80 text-textLight/70 transition-all hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 sm:hidden"
+            aria-label="Changer le theme"
           >
             {theme === 'dark' ? (
               <SunMedium size={20} className="transition-transform group-hover:rotate-12" />

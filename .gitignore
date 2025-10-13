@@ -59,3 +59,4 @@ __pycache__/
 
 webtoon_platform.zip
 Projet_platform.zip
+!*.env.example

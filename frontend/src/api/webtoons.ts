@@ -1,33 +1,23 @@
-import axios from 'axios'
 import type { Webtoon, WebtoonPayload } from '@/types/webtoon'
-
-const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
-
-const client = axios.create({
-  baseURL,
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  timeout: 10_000
-})
+import apiClient from './client'
 
 export const getWebtoons = async () => {
-  const { data } = await client.get<Webtoon[]>('/api/webtoons/')
+  const { data } = await apiClient.get<Webtoon[]>('/webtoons/')
   return data
 }
 
 export const createWebtoon = async (payload: WebtoonPayload) => {
-  const { data } = await client.post<Webtoon>('/api/webtoons/', payload)
+  const { data } = await apiClient.post<Webtoon>('/webtoons/', payload)
   return data
 }
 
 export const updateWebtoon = async (id: number, payload: WebtoonPayload) => {
-  const { data } = await client.put<Webtoon>(`/api/webtoons/${id}/`, payload)
+  const { data } = await apiClient.put<Webtoon>(`/webtoons/${id}/`, payload)
   return data
 }
 
 export const deleteWebtoon = async (id: number) => {
-  await client.delete(`/api/webtoons/${id}/`)
+  await apiClient.delete(`/webtoons/${id}/`)
 }
 
 export const webtoonApi = {

@@ -1,55 +1,89 @@
-# Plateforme de suivi des lectures
+# Webtoon Book
 
-Ce dépôt contient le back-end de la plateforme décrite dans le cahier des charges : une API REST Django permettant de suivre ses lectures (mangas, webtoons, sport, etc.), gérer des chapitres et la progression des utilisateurs, avec authentification JWT, documentation interactive et exécution conteneurisée.
+Projet full-stack pour gerer une bibliotheque de webtoons avec une API Django REST protege par JWT et un frontend React + TypeScript inspire d'un style AsuraScans.
 
-## Fonctionnalités clés
-- Authentification et inscription via JSON Web Tokens (SimpleJWT).
-- Gestion des rôles (utilisateur, administrateur) et interface Django admin enrichie.
-- Modélisation modulaire : catégories, contenus, chapitres, progression utilisateur.
-- API REST documentée (OpenAPI/Swagger) disponible sur `/api/docs/`.
-- Jeux de tests unitaires pour les principaux flux d’authentification et de gestion de catalogue.
-- Prêt pour PostgreSQL en production (Docker Compose) et SQLite en développement local.
+## Architecture
+- **backend/** : Django REST Framework, SimpleJWT, drf-spectacular (Swagger/ReDoc), PostgreSQL (ou SQLite en local)
+- **frontend/** : Vite + React + TypeScript + TailwindCSS, animations Framer Motion, gestion de theme et authentification JWT
 
-## Démarrage rapide (environnement local)
-1. Créer un environnement virtuel et installer les dépendances :
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-2. Appliquer les migrations et lancer le serveur de développement :
-   ```powershell
-   python manage.py migrate
-   python manage.py runserver
-   ```
-3. Créer un super-utilisateur si nécessaire :
-   ```powershell
-   python manage.py createsuperuser
-   ```
-4. Accéder à l'API sur `http://127.0.0.1:8000/`, à l’admin sur `/admin/` et à la documentation interactive sur `/api/docs/`.
+## Prerequis
+- Python 3.12+
+- Node.js 20+ et npm
+- (Optionnel) Docker et Docker Compose
 
-## Exécution avec Docker
-1. Dupliquer le fichier `.env.example` vers `.env` et adapter les valeurs à votre contexte (mot de passe PostgreSQL, secret Django, etc.).
-2. Sur les systèmes Unix, donner les droits d’exécution au script d’entrée : `chmod +x entrypoint.sh`.
-3. Construire et lancer les services :
-   ```bash
-   docker compose up --build
-   ```
-4. L’API est disponible sur `http://localhost:8000/`. PostgreSQL écoute sur le port `5432`.
-
-## Tests
-Lancer la suite de tests automatisés (utilise une base temporaire) :
+## Configuration rapide
+### 1. Backend
 ```powershell
-python manage.py test
+python -m venv .venv
+.venv\Scripts\activate        # Windows
+# source .venv/bin/activate   # Linux / macOS
+
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
-## Structure des endpoints principaux
-- `POST /api/auth/register/` : inscription d’un utilisateur.
-- `POST /api/auth/login/` et `POST /api/auth/refresh/` : obtention et renouvellement des jetons JWT.
-- `GET /api/auth/me/` : profil de l’utilisateur connecté.
-- `GET/POST /api/categories/` : gestion des catégories (lecture pour tous, écriture réservée aux admins).
-- `GET/POST /api/contents/` : gestion du catalogue.
-- `GET/POST /api/chapters/` : gestion des chapitres (paramètre `?content=` pour filtrer).
-- `GET/POST /api/progress/` : progression de lecture de l’utilisateur connecté.
+Par defaut le serveur ecoute sur `http://127.0.0.1:8000/`.
 
-Tous les détails (schéma de données, scénarios d’usage, roadmap) sont disponibles dans la documentation complémentaire (`docs/`).*** End Patch
+**Variables d'environnement** (fichier `.env` deja present):
+```
+DJANGO_SECRET_KEY=change-me
+DJANGO_DEBUG=True
+DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+CSRF_TRUSTED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+# Variables PostgreSQL (utiles uniquement pour Docker)
+POSTGRES_DB=platform_service
+POSTGRES_USER=platform_user
+POSTGRES_PASSWORD=platform_password
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+```
+
+### 2. Frontend
+```powershell
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Le serveur Vite tourne sur `http://localhost:5173/` et consomme l'API (`VITE_API_BASE_URL=http://localhost:8000/api`).
+
+## Premier lancement
+1. Demarrez le backend (`python manage.py runserver`).
+2. Demarrez le frontend (`npm run dev` dans `frontend/`).
+3. Ouvrez `http://localhost:5173/`, cliquez sur **Se connecter**, creez un compte puis connectez-vous pour commencer a ajouter vos webtoons. Les requetes utilisent automatiquement les tokens JWT recuperes depuis le backend.
+
+## Documentation API
+- Schema OpenAPI : `http://127.0.0.1:8000/api/schema/`
+- Swagger UI : `http://127.0.0.1:8000/api/docs/swagger/`
+- ReDoc : `http://127.0.0.1:8000/api/docs/redoc/`
+
+Regenerer le schema si besoin :
+```powershell
+python manage.py spectacular --file docs/openapi-schema.yaml
+```
+
+## Tests
+```powershell
+python manage.py test        # backend
+```
+
+Les tests couvrent l'inscription/login JWT, le CRUD webtoon, chapitres et commentaires, ainsi que les verifications de droits d'acces.
+
+## Docker (optionnel)
+```powershell
+docker compose up --build
+```
+
+Expose :
+- API : `http://localhost:8000/`
+- PostgreSQL : port `5432`
+
+Le frontend reste a lancer via `npm run dev` (non conteneurise).
+
+## Ressources utiles
+- `README_BACKEND.md` : memo detaille pour les commandes Django et la regeneration du schema OpenAPI.
+- `frontend/.env.example` : configuration par defaut du client Vite.
+- `docs/openapi-schema.yaml` : export du schema officiel de l'API.

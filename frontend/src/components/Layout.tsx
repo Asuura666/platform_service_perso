@@ -1,13 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import AuthModal from './AuthModal'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
+import { useAuth } from '@/providers/AuthProvider'
 
 type LayoutContextValue = {
   searchValue: string
   setSearchValue: (value: string) => void
   registerAddHandler: (handler: (() => void) | null) => void
+  openAuthModal: () => void
 }
 
 const LayoutContext = createContext<LayoutContextValue | undefined>(undefined)
@@ -29,19 +32,19 @@ const pageMetadata: Record<
 > = {
   '/': {
     title: 'Accueil',
-    subtitle: 'Vos univers favoris, vos lectures récentes et les tendances du moment.'
+    subtitle: 'Vos univers favoris, vos lectures recentes et les tendances du moment.'
   },
   '/webtoons': {
     title: 'Webtoon Book',
-    subtitle: 'Gérez votre collection, suivez vos lectures et explorez de nouveaux webtoons.'
+    subtitle: 'Gerez votre collection, suivez vos lectures et explorez de nouveaux webtoons.'
   },
   '/info': {
     title: 'Informations',
-    subtitle: 'Découvrez la vision du projet, les technologies et la roadmap à venir.'
+    subtitle: 'Decouvrez la vision du projet, les technologies et la roadmap a venir.'
   },
   '/upcoming': {
     title: 'Feature suivante',
-    subtitle: 'Aperçu des fonctionnalités en cours de conception pour Webtoon Book.'
+    subtitle: 'Apercu des fonctionnalites en cours de conception pour Webtoon Book.'
   }
 }
 
@@ -49,7 +52,9 @@ const Layout = () => {
   const { pathname } = useLocation()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const addHandlerRef = useRef<(() => void) | null>(null)
+  const { isAuthenticated, user, logout } = useAuth()
 
   useEffect(() => {
     setIsSidebarOpen(false)
@@ -60,24 +65,41 @@ const Layout = () => {
     addHandlerRef.current = handler ?? null
   }, [])
 
+  const openAuthModal = useCallback(() => {
+    setIsAuthModalOpen(true)
+  }, [])
+
+  const closeAuthModal = useCallback(() => {
+    setIsAuthModalOpen(false)
+  }, [])
+
   const metadata = useMemo(
     () =>
       pageMetadata[pathname] ?? {
         title: 'Webtoon Book',
-        subtitle: 'Retrouvez vos webtoons préférés et vos dernières lectures'
+        subtitle: 'Retrouvez vos webtoons preferes et vos dernieres lectures'
       },
     [pathname]
   )
 
-  const isAddButtonDisabled = pathname !== '/webtoons' || !addHandlerRef.current
+  const isAddButtonDisabled = pathname !== '/webtoons' || !addHandlerRef.current || !isAuthenticated
+
+  const handleAddWebtoon = useCallback(() => {
+    if (!isAuthenticated) {
+      openAuthModal()
+      return
+    }
+    addHandlerRef.current?.()
+  }, [isAuthenticated, openAuthModal])
 
   const contextValue = useMemo(
     () => ({
       searchValue,
       setSearchValue,
-      registerAddHandler
+      registerAddHandler,
+      openAuthModal
     }),
-    [searchValue, registerAddHandler]
+    [searchValue, registerAddHandler, openAuthModal]
   )
 
   return (
@@ -90,9 +112,13 @@ const Layout = () => {
             subtitle={metadata.subtitle}
             searchValue={searchValue}
             onSearchChange={setSearchValue}
-            onAddWebtoon={() => addHandlerRef.current?.()}
+            onAddWebtoon={handleAddWebtoon}
             onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
             disableAddButton={isAddButtonDisabled}
+            isAuthenticated={isAuthenticated}
+            userName={user?.username ?? ''}
+            onAuthAction={openAuthModal}
+            onLogout={logout}
           />
           <main className="flex-1 overflow-x-hidden px-4 pb-12 pt-6 sm:px-6 lg:px-10">
             <AnimatePresence mode="wait">
@@ -110,6 +136,7 @@ const Layout = () => {
           </main>
         </div>
       </div>
+      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
     </LayoutContext.Provider>
   )
 }
