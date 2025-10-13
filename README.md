@@ -1,77 +1,55 @@
-# Webtoon Platform (Django REST + React)
+# Plateforme de suivi des lectures
 
-This repo implements the project described in your *cahier des charges*:
-- Backend: **Django + Django REST Framework** with JWT auth, filtering, and OpenAPI docs.
-- Frontend: **React (Vite)** minimal UI that lists contents, opens a detail modal, and lets you add items.
-- Data loader: management command to import from CSV (e.g., `Webtoon Manga.csv`).
+Ce dépôt contient le back-end de la plateforme décrite dans le cahier des charges : une API REST Django permettant de suivre ses lectures (mangas, webtoons, sport, etc.), gérer des chapitres et la progression des utilisateurs, avec authentification JWT, documentation interactive et exécution conteneurisée.
 
-## Quick start (dev)
+## Fonctionnalités clés
+- Authentification et inscription via JSON Web Tokens (SimpleJWT).
+- Gestion des rôles (utilisateur, administrateur) et interface Django admin enrichie.
+- Modélisation modulaire : catégories, contenus, chapitres, progression utilisateur.
+- API REST documentée (OpenAPI/Swagger) disponible sur `/api/docs/`.
+- Jeux de tests unitaires pour les principaux flux d’authentification et de gestion de catalogue.
+- Prêt pour PostgreSQL en production (Docker Compose) et SQLite en développement local.
 
-### With Docker (recommended)
-```bash
-# 1) Copy .env example
-cp backend/.env.example backend/.env
+## Démarrage rapide (environnement local)
+1. Créer un environnement virtuel et installer les dépendances :
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+2. Appliquer les migrations et lancer le serveur de développement :
+   ```powershell
+   python manage.py migrate
+   python manage.py runserver
+   ```
+3. Créer un super-utilisateur si nécessaire :
+   ```powershell
+   python manage.py createsuperuser
+   ```
+4. Accéder à l'API sur `http://127.0.0.1:8000/`, à l’admin sur `/admin/` et à la documentation interactive sur `/api/docs/`.
 
-# 2) Build & run
-docker compose up --build
+## Exécution avec Docker
+1. Dupliquer le fichier `.env.example` vers `.env` et adapter les valeurs à votre contexte (mot de passe PostgreSQL, secret Django, etc.).
+2. Sur les systèmes Unix, donner les droits d’exécution au script d’entrée : `chmod +x entrypoint.sh`.
+3. Construire et lancer les services :
+   ```bash
+   docker compose up --build
+   ```
+4. L’API est disponible sur `http://localhost:8000/`. PostgreSQL écoute sur le port `5432`.
 
-# 3) Open the app
-# API: http://localhost:8000/api/
-# Docs: http://localhost:8000/api/docs/
-# Frontend: http://localhost:5173/
+## Tests
+Lancer la suite de tests automatisés (utilise une base temporaire) :
+```powershell
+python manage.py test
 ```
 
-### Bare-metal (Python 3.11+ & Node 18+)
-```bash
-# Backend
-cd backend
-python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver 0.0.0.0:8000
+## Structure des endpoints principaux
+- `POST /api/auth/register/` : inscription d’un utilisateur.
+- `POST /api/auth/login/` et `POST /api/auth/refresh/` : obtention et renouvellement des jetons JWT.
+- `GET /api/auth/me/` : profil de l’utilisateur connecté.
+- `GET/POST /api/categories/` : gestion des catégories (lecture pour tous, écriture réservée aux admins).
+- `GET/POST /api/contents/` : gestion du catalogue.
+- `GET/POST /api/chapters/` : gestion des chapitres (paramètre `?content=` pour filtrer).
+- `GET/POST /api/progress/` : progression de lecture de l’utilisateur connecté.
 
-# (Optional) Load sample data from CSV
-python manage.py import_webtoons ../data/Webtoon\ Manga.csv
-
-# Frontend
-cd ../frontend
-npm install
-npm run dev
-```
-
-## API Endpoints (selection)
-- `POST /api/auth/jwt/create/` -> obtain JWT (email/username + password)
-- `GET /api/categories/`
-- `GET /api/contents/?search=<q>&ordering=title`
-- `GET /api/chapters/?content=<id>`
-- `GET /api/progress/?user=<id>&content=<id>`
-
-OpenAPI docs (Swagger UI): **/api/docs/**
-
-## Data model (simplified)
-- **FeatureCategory**: name, description
-- **Content**: title, author, language, status, rating, description, link, release_day, feature_category
-- **Chapter**: content FK, chapter_number, title, release_date, link
-- **UserProgress**: user FK, content FK, last_chapter (int), last_read_at, notes
-
-## CSV Importer
-The importer accepts flexible headers and tries to map common names:
-```
-Title, Titre, title
-Type, Catégorie, type
-Language, Langue, language
-Status, Statut, status
-Rating, Note, rating
-Description, Résumé, description
-Link, Lien, link
-LastChapter, Dernier chapitre, last_chapter
-ReleaseDay, Jour de sortie, release_day
-Author, Auteur, author
-```
-Unknown columns are ignored. Rows without a Title are skipped.
-
----
-
-Made with ❤️ to match your wireframes and requirements.
+Tous les détails (schéma de données, scénarios d’usage, roadmap) sont disponibles dans la documentation complémentaire (`docs/`).*** End Patch
