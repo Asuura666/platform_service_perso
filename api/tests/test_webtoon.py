@@ -1,16 +1,19 @@
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from accounts.models import User
+from accounts.models import Feature, User
 from api.models import Webtoon
 
 
 class WebtoonAPITests(APITestCase):
     def setUp(self):
+        cache.clear()
         self.register_url = reverse('register')
         self.login_url = reverse('login')
         self.webtoon_list_url = reverse('api:webtoon-list')
+        self.webtoon_feature = Feature.objects.get(code='webtoon_management')
 
     def authenticate(self):
         self.user = User.objects.create_user(
@@ -18,6 +21,7 @@ class WebtoonAPITests(APITestCase):
             email='melissa@example.com',
             password='motdepasse123',
         )
+        self.user.features.add(self.webtoon_feature)
         login_response = self.client.post(
             self.login_url,
             {'username': 'melissa', 'password': 'motdepasse123'},
@@ -68,7 +72,8 @@ class WebtoonAPITests(APITestCase):
 
         list_response = self.client.get(self.webtoon_list_url)
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(list_response.data), 1)
+        self.assertEqual(list_response.data['count'], 1)
+        self.assertEqual(len(list_response.data['results']), 1)
 
         detail_url = reverse('api:webtoon-detail', args=[webtoon_id])
         detail_response = self.client.get(detail_url)
@@ -99,11 +104,12 @@ class WebtoonAPITests(APITestCase):
         )
 
         other_client = self.client.__class__()
-        User.objects.create_user(
+        other_user = User.objects.create_user(
             username='other',
             email='other@example.com',
             password='motdepasse456',
         )
+        other_user.features.add(self.webtoon_feature)
         login_response = other_client.post(
             self.login_url,
             {'username': 'other', 'password': 'motdepasse456'},
@@ -115,7 +121,8 @@ class WebtoonAPITests(APITestCase):
 
         list_response = other_client.get(self.webtoon_list_url)
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list_response.data, [])
+        self.assertEqual(list_response.data['count'], 0)
+        self.assertEqual(list_response.data['results'], [])
 
         detail_url = reverse('api:webtoon-detail', args=[webtoon.id])
         detail_response = other_client.get(detail_url)

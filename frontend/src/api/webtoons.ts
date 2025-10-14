@@ -1,8 +1,18 @@
 import type { Webtoon, WebtoonPayload } from '@/types/webtoon'
 import apiClient from './client'
 
-export const getWebtoons = async () => {
-  const { data } = await apiClient.get<Webtoon[]>('/webtoons/')
+export type PaginatedResponse<T> = {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
+export const getWebtoons = async (params?: { page?: number }, config?: { signal?: AbortSignal }) => {
+  const { data } = await apiClient.get<PaginatedResponse<Webtoon>>('/webtoons/', {
+    params,
+    signal: config?.signal
+  })
   return data
 }
 

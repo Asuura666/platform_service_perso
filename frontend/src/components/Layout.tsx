@@ -42,9 +42,13 @@ const pageMetadata: Record<
     title: 'Informations',
     subtitle: 'Decouvrez la vision du projet, les technologies et la roadmap a venir.'
   },
-  '/upcoming': {
-    title: 'Feature suivante',
-    subtitle: 'Apercu des fonctionnalites en cours de conception pour Webtoon Book.'
+  '/scraper': {
+    title: 'Scraper',
+    subtitle: 'Importez automatiquement chapitres et images depuis une URL de webtoon.'
+  },
+  '/admin': {
+    title: 'Administration',
+    subtitle: 'Gerez les comptes et attribuez les droits aux utilisateurs.'
   }
 }
 
@@ -53,16 +57,20 @@ const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [hasAddHandler, setHasAddHandler] = useState(false)
   const addHandlerRef = useRef<(() => void) | null>(null)
   const { isAuthenticated, user, logout } = useAuth()
 
-  useEffect(() => {
-    setIsSidebarOpen(false)
-    setSearchValue('')
-  }, [pathname])
+useEffect(() => {
+  setIsSidebarOpen(false)
+  setSearchValue('')
+  setHasAddHandler(false)
+  addHandlerRef.current = null
+}, [pathname])
 
   const registerAddHandler = useCallback((handler: (() => void) | null) => {
     addHandlerRef.current = handler ?? null
+    setHasAddHandler(Boolean(handler))
   }, [])
 
   const openAuthModal = useCallback(() => {
@@ -82,7 +90,7 @@ const Layout = () => {
     [pathname]
   )
 
-  const isAddButtonDisabled = pathname !== '/webtoons' || !addHandlerRef.current || !isAuthenticated
+  const isAddButtonDisabled = pathname !== '/webtoons' || !hasAddHandler || !isAuthenticated
 
   const handleAddWebtoon = useCallback(() => {
     if (!isAuthenticated) {

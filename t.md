@@ -1,230 +1,251 @@
 
-
 @back
 
-Je veux que tu crées tout le backend pour supporter le frontend "Webtoon Book" 
-décrit dans le projet. Le backend doit être construit avec **Django + Django REST Framework + SimpleJWT** 
-et doit fournir une API claire, testée et documentée.
+Je veux que tu améliores le backend Django du projet **Webtoon Book** avec une nouvelle feature :  
+🧩 **Un Scrapper automatique de webtoons**, inspiré du repo https://github.com/unclecode/crawl4ai.
+
+Cette feature sera accessible depuis le menu latéral du front (bouton “Scrapper” ou “Extraction Webtoon”).  
+Elle permettra à l’utilisateur d’entrer le lien d’un webtoon (ex : https://manga-scantrad.io/manga/le-retour-du-ranker/),  
+et le backend devra :
+- Scrapper tous les chapitres du webtoon (titres, liens, images),
+- Télécharger toutes les images localement,
+- Créer automatiquement les entrées `Webtoon` et `Chapter` dans la base Django,
+- Retourner un rapport de succès (nombre de chapitres et d’images récupérés),
+- Gérer les erreurs de scraping de manière robuste (retry, timeout, logs).
 
 ---
 
-## 🎯 Objectif global
-Créer une API REST complète permettant de :
-1. Gérer les **Webtoons** (CRUD)
-2. Gérer les **Chapitres** associés à chaque webtoon
-3. Gérer les **Commentaires et notes**
-4. Assurer une **authentification JWT sécurisée**
-5. Fournir une **documentation interactive (Swagger / ReDoc)**.
-6. Tester automatiquement toutes les routes critiques avant de valider la livraison.
+## 🧱 1. Architecture à mettre à jour
 
----
-
-## 🧱 1. Structure attendue du backend
+Ajoute un **nouvel app Django** :
 ```
 
 backend/
-├─ manage.py
-├─ requirements.txt
-├─ Dockerfile
-├─ docker-compose.yml
-├─ webtoonbook/
-│    ├─ settings.py
-│    ├─ urls.py
-│    └─ ...
-├─ api/
-│    ├─ models.py
+├─ scraper/
+│    ├─ **init**.py
+│    ├─ crawler.py
+│    ├─ tasks.py
 │    ├─ serializers.py
 │    ├─ views.py
 │    ├─ urls.py
-│    ├─ tests/
-│    │    ├─ test_webtoon.py
-│    │    ├─ test_chapter.py
-│    │    └─ test_comment.py
-│    └─ permissions.py
-├─ accounts/
-│    ├─ models.py
-│    ├─ serializers.py
-│    ├─ views.py
-│    └─ urls.py
-└─ docs/
-└─ openapi-schema.yaml
+│    ├─ models.py (optionnel si tu veux journaliser les scrapes)
+│    └─ tests/test_scraper.py
 
 ````
 
 ---
 
-## 📚 2. Modèles à implémenter
+## ⚙️ 2. Fonctionnement du Scrapper
 
-### Webtoon
-| Champ | Type | Détails |
-|-------|------|----------|
-| `id` | int | auto |
-| `title` | CharField(200) | Titre de l’œuvre |
-| `type` | CharField(50) | Exemple : "Manhwa", "Manhua", "Webtoon" |
-| `language` | CharField(50) | Langue principale |
-| `rating` | FloatField | de 0 à 5 |
-| `status` | CharField(20) | "En cours" / "Terminé" |
-| `chapter` | IntegerField | Dernier chapitre lu |
-| `link` | URLField | Lien vers la source |
-| `last_update` | DateTimeField(auto_now=True) |
-| `last_read_date` | DateField(null=True, blank=True) |
-| `comment` | TextField(blank=True) |
-| `image_url` | URLField(blank=True) |
-| `user` | ForeignKey(User, on_delete=CASCADE) |
+Utilise la librairie `crawl4ai` pour explorer et extraire les contenus :
 
-### Chapter
-| Champ | Type | Détails |
-|-------|------|----------|
-| `id` | int | auto |
-| `webtoon` | ForeignKey(Webtoon, related_name='chapters') |
-| `chapter_number` | int |
-| `title` | CharField(200) |
-| `release_date` | DateField |
-
-### Comment
-| Champ | Type | Détails |
-|-------|------|----------|
-| `id` | int | auto |
-| `webtoon` | ForeignKey(Webtoon, related_name='comments') |
-| `text` | TextField |
-| `created_at` | DateTimeField(auto_now_add=True) |
-| `user` | ForeignKey(User, on_delete=CASCADE) |
-
----
-
-## ⚙️ 3. Endpoints REST à créer (et documenter)
-
-| Méthode | Endpoint | Description |
-|----------|-----------|--------------|
-| POST | `/api/auth/register/` | créer un compte utilisateur |
-| POST | `/api/auth/login/` | obtenir JWT |
-| GET | `/api/webtoons/` | liste tous les webtoons de l’utilisateur connecté |
-| POST | `/api/webtoons/` | crée un nouveau webtoon |
-| GET | `/api/webtoons/{id}/` | détail d’un webtoon |
-| PUT | `/api/webtoons/{id}/` | modifie un webtoon |
-| DELETE | `/api/webtoons/{id}/` | supprime un webtoon |
-| GET | `/api/webtoons/{id}/chapters/` | liste des chapitres |
-| POST | `/api/webtoons/{id}/chapters/` | ajoute un chapitre |
-| GET | `/api/webtoons/{id}/comments/` | liste des commentaires |
-| POST | `/api/webtoons/{id}/comments/` | ajoute un commentaire |
-
----
-
-## 🔐 4. Authentification & permissions
-
-- Utiliser **SimpleJWT**
-- Routes `/api/webtoons/`, `/api/chapters/`, `/api/comments/` protégées par `IsAuthenticated`
-- Les données sont filtrées par `request.user`
-- Tout utilisateur ne peut voir que **ses propres webtoons**
-
----
-
-## 📘 5. Documentation
-
-Mettre en place **drf-spectacular** pour la génération automatique de la doc OpenAPI.
-
-Endpoints :
-- `/api/schema/` → schéma brut YAML/JSON
-- `/api/docs/swagger/` → Swagger UI
-- `/api/docs/redoc/` → ReDoc
-
-Configurer dans `settings.py` :
+### Exemple d’utilisation :
 ```python
-INSTALLED_APPS = [
-  ...
-  'drf_spectacular',
-  'drf_spectacular_sidecar',
-  'rest_framework',
-  'rest_framework_simplejwt',
-]
-REST_FRAMEWORK = {
-  'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-  'DEFAULT_AUTHENTICATION_CLASSES': (
-      'rest_framework_simplejwt.authentication.JWTAuthentication',
-  ),
-}
-SPECTACULAR_SETTINGS = {
-  'TITLE': 'Webtoon Book API',
-  'DESCRIPTION': 'API backend pour le projet Webtoon Book (Front AsuraComic Style)',
-  'VERSION': '1.0.0',
-}
+from crawl4ai import WebCrawler
+
+async def scrape_manga(url: str):
+    async with WebCrawler() as crawler:
+        result = await crawler.run(url)
+        # Récupérer titres, images, liens
+        for item in result['chapters']:
+            print(item['title'], item['images'])
 ````
 
+⚙️ Si `crawl4ai` n’est pas dispo, utilise `requests + BeautifulSoup4` comme fallback.
+
 ---
 
-## 🧪 6. Tests automatiques
+## 📡 3. Endpoint REST à créer
 
-Écris des tests unitaires Pytest ou Django natifs couvrant :
+| Méthode | Endpoint                    | Description                                                |
+| ------- | --------------------------- | ---------------------------------------------------------- |
+| POST    | `/api/scraper/`             | Lance le scraping d’un webtoon                             |
+| GET     | `/api/scraper/status/{id}/` | Récupère le statut du scraping (en cours, terminé, échoué) |
+| GET     | `/api/scraper/history/`     | Liste les derniers scrapes réalisés                        |
 
-* Création utilisateur / login JWT
-* CRUD complet des webtoons
-* Ajout de chapitre et commentaire
-* Vérification des permissions (un user ne peut pas voir ceux des autres)
-* Retour des bons codes HTTP (200, 201, 403, 404)
+### Exemple de payload :
 
-Chaque fichier `test_*.py` doit être exécutable via :
+```json
+{
+  "url": "https://manga-scantrad.io/manga/le-retour-du-ranker/"
+}
+```
+
+### Réponse attendue :
+
+```json
+{
+  "status": "success",
+  "webtoon": "Le Retour du Ranker",
+  "chapters_scraped": 128,
+  "images_downloaded": 2400,
+  "local_path": "/media/webtoons/le-retour-du-ranker/",
+  "duration": "00:03:41"
+}
+```
+
+---
+
+## 🧩 4. Intégration avec les modèles existants
+
+Lors du scraping :
+
+1. Crée ou récupère un `Webtoon` avec le même titre.
+2. Crée chaque `Chapter` avec :
+
+   * `title`
+   * `chapter_number`
+   * `release_date` (si dispo)
+   * `local_folder` (chemin local vers les images)
+3. Stocke les images sous :
+
+```
+/media/webtoons/<slug-du-webtoon>/<chapter-number>/
+```
+
+➡️ Les chemins seront accessibles via un champ `local_image_paths` dans les modèles.
+
+---
+
+## 🚀 5. Tâches asynchrones (optionnel mais recommandé)
+
+Ajoute la possibilité de lancer le scraping en tâche de fond avec **Celery** :
+
+* Le POST `/api/scraper/` crée une tâche Celery.
+* Le front peut consulter `/api/scraper/status/{id}/` pour suivre la progression.
+
+Celery + Redis :
 
 ```bash
-pytest
+pip install celery redis
+celery -A webtoonbook worker --loglevel=INFO
+```
+
+---
+
+## 🧪 6. Tests à implémenter
+
+Crée des tests automatiques dans `tests/test_scraper.py` :
+
+* `test_scraper_endpoint_exists`
+* `test_scraper_invalid_url_returns_400`
+* `test_scraper_creates_webtoon_and_chapters`
+* `test_scraper_stores_images_locally`
+* `test_scraper_status_returns_progress`
+
+Tous les tests doivent passer avant validation finale :
+
+```bash
+pytest -v
 # ou
-python manage.py test
+python manage.py test scraper
 ```
-
-⚡ Avant de terminer, exécute tous les tests et assure-toi qu’ils sont **verts (OK)** avant validation.
 
 ---
 
-## 🚀 7. Commandes de lancement (doc utilisateur)
+## 📘 7. Documentation API
 
-### En local
+Étend la doc Swagger / ReDoc :
 
-```bash
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
+* `/api/docs/swagger/` → inclure la section **Scraper**
+* `/api/docs/redoc/` → même chose
 
-Accès :
+Ajoute une description claire :
 
-* API : [http://127.0.0.1:8000/api/](http://127.0.0.1:8000/api/)
-* Swagger : [http://127.0.0.1:8000/api/docs/swagger/](http://127.0.0.1:8000/api/docs/swagger/)
-* Redoc : [http://127.0.0.1:8000/api/docs/redoc/](http://127.0.0.1:8000/api/docs/redoc/)
-
-### Avec Docker
-
-```bash
-docker-compose up --build
-```
-
-Le fichier `docker-compose.yml` doit inclure :
-
-* Un service `web` (Django)
-* Un service `db` (PostgreSQL)
-* Un volume `data` persistant
+> “Permet de scrapper automatiquement les chapitres et images d’un webtoon à partir d’une URL (MangaScantrad, AsuraScans, etc.).”
 
 ---
 
-## ✅ 8. Validation finale
+## 🧭 8. Lien avec le Frontend
 
-Avant de marquer la tâche comme terminée :
+Expose dans la doc un exemple d’appel depuis le front :
 
-1. Exécuter tous les tests (`pytest` ou `manage.py test`)
-2. Vérifier que Swagger et Redoc s’ouvrent sans erreur
-3. Tester avec un utilisateur via Postman ou curl :
+```javascript
+// frontend/src/api/scraper.ts
+import axios from 'axios';
 
-   * login
-   * ajout d’un webtoon
-   * récupération via `/api/webtoons/`
-4. Fournir un fichier `README_BACKEND.md` expliquant comment démarrer le projet.
+export const launchScraper = async (url: string) => {
+  const response = await axios.post('/api/scraper/', { url });
+  return response.data;
+};
+```
+
+Dans la sidebar du front (menu “Scrapper” ou “Feature suivante”):
+
+* Crée un bouton **“Lancer un scrap”**
+* Champ `input` pour coller une URL
+* Appel `launchScraper(url)`
+* Affiche un **loader + résultat** (“128 chapitres ajoutés avec succès !”)
 
 ---
 
-Une fois terminé, affiche :
+## 🧾 9. Exemple de workflow complet
 
-* ✅ “Tous les tests passent”
-* ✅ Lien vers la documentation (Swagger / ReDoc)
-* ✅ Exemple de requête JSON pour créer un webtoon
-* ✅ Exemple de réponse API
+1. L’utilisateur va dans “Scrapper”.
+2. Il colle : `https://manga-scantrad.io/manga/le-retour-du-ranker/`.
+3. Le front appelle `/api/scraper/` (POST).
+4. Le backend télécharge tous les chapitres et images.
+5. Les nouveaux webtoons et chapitres apparaissent dans la base.
+6. Le front recharge `/api/webtoons/` → ils s’affichent dans la bibliothèque.
+
+---
+
+## ⚙️ 10. Configuration Docker & stockage local
+
+Dans `docker-compose.yml`, ajoute un volume :
+
+```yaml
+volumes:
+  webtoon_media:
+    driver: local
+
+services:
+  web:
+    volumes:
+      - webtoon_media:/app/media
+```
+
+Et dans `settings.py` :
+
+```python
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+```
+
+---
+
+## ✅ 11. Vérification finale avant livraison
+
+1. Tous les tests passent (`pytest` OK)
+2. Les endpoints `/api/webtoons/` et `/api/scraper/` fonctionnent ensemble
+3. Swagger documente la nouvelle route
+4. Le front peut lancer un scraping depuis un bouton et voir le résultat
+5. Les images apparaissent bien dans `/media/webtoons/...`
+6. Aucune erreur critique dans les logs
+
+---
+
+## 📄 12. À livrer
+
+* Code complet `scraper/`
+* Tests unitaires ✅
+* Migrations appliquées ✅
+* Doc Swagger/Redoc mise à jour ✅
+* `README_BACKEND.md` mis à jour avec instructions d’utilisation du scrapper :
+
+  * Comment lancer un scrap
+  * Où les fichiers sont stockés
+  * Commandes Docker/Celery
+  * Endpoints disponibles
+
+---
+
+Résultat attendu :
+✅ Tous les tests passent
+✅ API documentée
+✅ Scrapper opérationnel relié au front
+✅ Commande “Ajouter un webtoon” fonctionnelle
+✅ Images et chapitres visibles dans la bibliothèque
 
 ```
 

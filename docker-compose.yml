@@ -4,12 +4,18 @@ services:
     command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
     env_file:
       - .env
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/1}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
     volumes:
       - .:/app
+      - webtoon_media:/app/media
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:16-alpine
@@ -20,5 +26,28 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    image: redis:7-alpine
+    command: redis-server --save "" --appendonly no
+    ports:
+      - "6379:6379"
+
+  worker:
+    build: .
+    command: celery -A core worker --loglevel=info
+    env_file:
+      - .env
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/1}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    volumes:
+      - .:/app
+      - webtoon_media:/app/media
+    depends_on:
+      - db
+      - redis
+
 volumes:
   postgres_data:
+  webtoon_media:

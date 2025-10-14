@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import clsx from 'clsx'
 import { LogIn, LogOut, Menu, Moon, PlusCircle, Search, SunMedium, User } from 'lucide-react'
-import { type ChangeEvent } from 'react'
+import { memo, type ChangeEvent } from 'react'
 import { useTheme } from '@/providers/ThemeProvider'
 
 type NavbarProps = {
@@ -18,7 +18,7 @@ type NavbarProps = {
   onLogout: () => void
 }
 
-const Navbar = ({
+const NavbarComponent = ({
   pageTitle = 'Webtoon Book',
   subtitle = 'Retrouvez vos webtoons preferes et vos dernieres lectures',
   searchValue,
@@ -167,5 +167,7 @@ const Navbar = ({
     </header>
   )
 }
+
+const Navbar = memo(NavbarComponent)
 
 export default Navbar

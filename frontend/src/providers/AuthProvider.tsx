@@ -10,6 +10,7 @@ import {
 } from 'react'
 import apiClient, { setAuthToken } from '@/api/client'
 import { getProfile, loginRequest, refreshTokenRequest, registerRequest, type UserProfile } from '@/api/auth'
+import { notifyError, notifyInfo, notifySuccess, notifyWarning } from '@/utils/notificationBus'
 
 type AuthContextValue = {
   user: UserProfile | null
@@ -19,6 +20,7 @@ type AuthContextValue = {
   login: (payload: { username: string; password: string }) => Promise<void>
   register: (payload: { username: string; email: string; password: string }) => Promise<void>
   logout: () => void
+  hasFeature: (code: string) => boolean
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -68,6 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(profile)
     } catch (error) {
       console.error('Unable to fetch profile', error)
+      notifyError('Impossible de recuperer votre profil. Veuillez vous reconnecter.')
       clearSession()
     }
   }, [clearSession])
@@ -103,9 +106,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               error.config.headers.Authorization = `Bearer ${tokens.access}`
               return apiClient.request(error.config)
             } catch (refreshError) {
+              notifyWarning('Votre session a expire. Veuillez vous reconnecter.')
               clearSession()
             }
           } else {
+            notifyWarning('Votre session a expire. Veuillez vous reconnecter.')
             clearSession()
           }
         }
@@ -117,7 +122,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [clearSession])
 
-  const login = useCallback(
+  const authenticate = useCallback(
     async (payload: { username: string; password: string }) => {
       const tokens = await loginRequest(payload)
       setAuthToken(tokens.access)
@@ -127,20 +132,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       writeToken(REFRESH_KEY, tokens.refresh)
       await fetchProfile()
     },
-    [fetchProfile]
+    [fetchProfile],
+  )
+
+  const login = useCallback(
+    async (payload: { username: string; password: string }) => {
+      await authenticate(payload)
+      notifySuccess('Connexion reussie.')
+    },
+    [authenticate],
   )
 
   const register = useCallback(
     async (payload: { username: string; email: string; password: string }) => {
       await registerRequest(payload)
-      await login({ username: payload.username, password: payload.password })
+      notifySuccess('Compte cree avec succes.')
+      await authenticate({ username: payload.username, password: payload.password })
     },
-    [login]
+    [authenticate],
   )
 
   const logout = useCallback(() => {
     clearSession()
+    notifyInfo('Vous etes deconnecte.')
   }, [clearSession])
+
+  const hasFeature = useCallback(
+    (code: string) => {
+      if (!code) return true
+      if (!user) return false
+      if (user.is_superuser) return true
+      return user.features.includes(code)
+    },
+    [user]
+  )
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -150,9 +175,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       loading,
       login,
       register,
-      logout
+      logout,
+      hasFeature
     }),
-    [user, accessToken, loading, login, register, logout]
+    [user, accessToken, loading, login, register, logout, hasFeature]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

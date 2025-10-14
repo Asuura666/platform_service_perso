@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { BookOpen, Home, Info, Sparkles } from 'lucide-react'
+import { BookOpen, Home, Info, ShieldCheck, Sparkles } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
+import { useAuth } from '@/providers/AuthProvider'
 
 type SidebarProps = {
   isMobileOpen?: boolean
@@ -17,16 +18,34 @@ type NavItem = {
   disabled?: boolean
 }
 
-const navItems: NavItem[] = [
+type NavConfig = NavItem & {
+  requiredFeature?: string
+  requireAuth?: boolean
+}
+
+const baseNavItems: NavConfig[] = [
   { label: 'Accueil', path: '/', icon: Home },
-  { label: 'Webtoon Book', path: '/webtoons', icon: BookOpen },
+  { label: 'Webtoon Book', path: '/webtoons', icon: BookOpen, requiredFeature: 'webtoon_management', requireAuth: true },
   { label: 'Information', path: '/info', icon: Info },
-  { label: 'Feature suivante', path: '/upcoming', icon: Sparkles, disabled: true }
+  { label: 'Scraper', path: '/scraper', icon: Sparkles, requiredFeature: 'scraper_access', requireAuth: true }
 ]
 
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   const location = useLocation()
+  const { user, isAuthenticated, hasFeature } = useAuth()
   const activePath = useMemo(() => location.pathname, [location])
+  const navItems = useMemo(() => {
+    const items = baseNavItems.map<NavItem>((item) => {
+      const disabled =
+        (item.requireAuth && !isAuthenticated) ||
+        (item.requiredFeature ? !hasFeature(item.requiredFeature) : false)
+      return { label: item.label, path: item.path, icon: item.icon, disabled }
+    })
+    if (user?.is_superuser) {
+      items.push({ label: 'Administration', path: '/admin', icon: ShieldCheck })
+    }
+    return items
+  }, [user, isAuthenticated, hasFeature])
 
   return (
     <nav className="flex h-full w-72 flex-col bg-panel/80 backdrop-blur-xl shadow-panel">
@@ -134,4 +153,4 @@ const Sidebar = ({ isMobileOpen = false, onClose }: SidebarProps) => (
   </>
 )
 
-export default Sidebar
+export default memo(Sidebar)

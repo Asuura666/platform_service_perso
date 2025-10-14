@@ -55,6 +55,19 @@ Le serveur Vite tourne sur `http://localhost:5173/` et consomme l'API (`VITE_API
 2. Demarrez le frontend (`npm run dev` dans `frontend/`).
 3. Ouvrez `http://localhost:5173/`, cliquez sur **Se connecter**, creez un compte puis connectez-vous pour commencer a ajouter vos webtoons. Les requetes utilisent automatiquement les tokens JWT recuperes depuis le backend.
 
+## Importer vos webtoons existants
+Un importateur CSV est fourni pour le fichier `data/Webtoon Manga.csv` :
+```powershell
+python manage.py import_webtoons --user VOTRE_PSEUDO --file "data/Webtoon Manga.csv"
+```
+Remplacez `VOTRE_PSEUDO` par le nom du compte cree via le frontend. Les lignes sont creees ou mises a jour pour cet utilisateur.
+
+## Scraper automatique
+- Lancer un scraping depuis le frontend (menu **Scraper**) ou via `POST /api/scraper/` avec `{ "url": "https://..." }`.
+- Suivre la progression : `GET /api/scraper/status/{id}/` et consulter l'historique via `GET /api/scraper/history/`.
+- Les images sont sauvegardees sous `media/webtoons/<slug>/chapter-XXXX/`.
+- (Optionnel) pour lancer le scraping en tache de fond : `celery -A core worker --loglevel=INFO`.
+
 ## Documentation API
 - Schema OpenAPI : `http://127.0.0.1:8000/api/schema/`
 - Swagger UI : `http://127.0.0.1:8000/api/docs/swagger/`

@@ -34,6 +34,9 @@ export type UserProfile = {
   email: string
   first_name: string
   last_name: string
+  role: string
+  is_superuser: boolean
+  features: string[]
 }
 
 export const getProfile = async () => {

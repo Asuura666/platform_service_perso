@@ -14,10 +14,12 @@ class ChapterSerializer(serializers.ModelSerializer):
             'chapter_number',
             'title',
             'release_date',
+            'local_folder',
+            'local_image_paths',
             'created_at',
             'updated_at',
         )
-        read_only_fields = ('id', 'webtoon', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'webtoon', 'local_folder', 'local_image_paths', 'created_at', 'updated_at')
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -67,6 +69,11 @@ class WebtoonSerializer(serializers.ModelSerializer):
             'chapters_count',
             'comments_count',
         )
+        extra_kwargs = {
+            'link': {'allow_blank': True, 'required': False},
+            'image_url': {'allow_blank': True, 'required': False},
+            'comment': {'allow_blank': True, 'required': False},
+        }
 
     def get_chapters_count(self, obj: Webtoon) -> int:
         return getattr(obj, 'chapters_count', None) or obj.chapters.count()

@@ -48,6 +48,30 @@ Le schema genere est exporte dans `docs/openapi-schema.yaml`. Pour le regenerer 
 python manage.py spectacular --file docs/openapi-schema.yaml
 ```
 
+## Scraper automatique
+
+Le backend expose un service de scraping (`/api/scraper/`) qui importe un webtoon (titre, chapitres, images) et
+sauvegarde les fichiers sous `media/webtoons/`.
+
+### Endpoints
+- `POST /api/scraper/` : lance un scraping (payload `{ "url": "https://..." }`).
+- `GET /api/scraper/status/{id}/` : récupère le statut d'une tâche (pending/running/success/failed).
+- `GET /api/scraper/history/` : renvoie l'historique des scrapes de l'utilisateur.
+
+### Utilisation
+```bash
+python manage.py runserver
+# (optionnel) lancer un worker Celery si Redis est configuré
+celery -A core worker --loglevel=INFO
+```
+
+Les médias sont stockés dans `MEDIA_ROOT` (`media/` par défaut). Chaque chapitre dispose d'un dossier
+`webtoons/<slug>/chapter-XXXX/` et les chemins relatifs sont retournés par l'API et via le modèle `Chapter`.
+
+### Frontend
+La page « Scraper » du frontend consomme ces endpoints via `frontend/src/api/scraper.ts` et affiche la progression
+des tâches en temps réel.
+
 ## Exemple de payload Webtoon
 ```json
 {

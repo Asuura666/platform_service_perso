@@ -75,7 +75,7 @@ const WebtoonModal = ({ webtoon, isOpen, onClose, onEdit }: WebtoonModalProps) =
 
             <div className="relative h-72 w-full overflow-hidden border-b border-muted/40 lg:h-full lg:border-b-0 lg:border-r">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/70" />
-              <img
+              <img loading="lazy"
                 src={!imageError ? webtoon.image_url : FALLBACK_IMAGE}
                 alt={webtoon.title}
                 onError={() => setImageError(true)}

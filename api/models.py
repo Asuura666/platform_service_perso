@@ -32,7 +32,7 @@ class Webtoon(TimeStampedModel):
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='En cours')
     chapter = models.PositiveIntegerField(help_text='Dernier chapitre lu.')
-    link = models.URLField()
+    link = models.URLField(blank=True)
     last_update = models.DateTimeField(auto_now=True)
     last_read_date = models.DateField(null=True, blank=True)
     comment = models.TextField(blank=True)
@@ -62,7 +62,9 @@ class Chapter(TimeStampedModel):
     )
     chapter_number = models.PositiveIntegerField()
     title = models.CharField(max_length=200)
-    release_date = models.DateField()
+    release_date = models.DateField(null=True, blank=True)
+    local_folder = models.CharField(max_length=500, blank=True)
+    local_image_paths = models.JSONField(default=list, blank=True)
 
     class Meta(TimeStampedModel.Meta):
         verbose_name = 'chapter'

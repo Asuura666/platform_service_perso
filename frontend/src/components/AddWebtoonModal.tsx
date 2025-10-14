@@ -76,8 +76,6 @@ const AddWebtoonModal = ({ isOpen, onClose, onSubmit, webtoon }: AddWebtoonModal
   const validate = (values: WebtoonPayload): FieldErrors => {
     const nextErrors: FieldErrors = {}
     if (!values.title.trim()) nextErrors.title = 'Le titre est requis.'
-    if (!values.link.trim()) nextErrors.link = 'Le lien est requis.'
-    if (!values.image_url.trim()) nextErrors.image_url = 'Merci de fournir une image.'
     if (values.rating < 0 || values.rating > 5) nextErrors.rating = 'La note doit être comprise entre 0 et 5.'
     if (!Number.isFinite(values.rating)) nextErrors.rating = 'La note doit être un nombre.'
     if (!Number.isFinite(values.chapter) || values.chapter <= 0) nextErrors.chapter = 'Merci de préciser le chapitre.'
@@ -171,33 +169,29 @@ const AddWebtoonModal = ({ isOpen, onClose, onSubmit, webtoon }: AddWebtoonModal
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.35em] text-textLight/40">Lien</label>
+              <label className="text-xs font-semibold uppercase tracking-[0.35em] text-textLight/40">
+                Lien (optionnel)
+              </label>
               <input
                 value={form.link}
                 onChange={(event) => handleChange('link', event.target.value)}
                 placeholder="https://..."
-                className={clsx(
-                  'rounded-2xl border border-transparent bg-surface/80 px-4 py-3 text-sm text-white shadow-panel transition focus:border-accent/50 focus:outline-none',
-                  errors.link && 'border-red-500/60'
-                )}
+                className="rounded-2xl border border-transparent bg-surface/80 px-4 py-3 text-sm text-white shadow-panel transition focus:border-accent/50 focus:outline-none"
               />
-              {errors.link && <span className="text-xs text-red-400/90">{errors.link}</span>}
+              <span className="text-xs text-textLight/40">Laissez vide si vous n&apos;avez pas de lien direct.</span>
             </div>
 
             <div className="flex flex-col gap-2">
               <label className="text-xs font-semibold uppercase tracking-[0.35em] text-textLight/40">
-                URL de l&apos;image
+                URL de l&apos;image (optionnelle)
               </label>
               <input
                 value={form.image_url}
                 onChange={(event) => handleChange('image_url', event.target.value)}
                 placeholder="https://..."
-                className={clsx(
-                  'rounded-2xl border border-transparent bg-surface/80 px-4 py-3 text-sm text-white shadow-panel transition focus:border-accent/50 focus:outline-none',
-                  errors.image_url && 'border-red-500/60'
-                )}
+                className="rounded-2xl border border-transparent bg-surface/80 px-4 py-3 text-sm text-white shadow-panel transition focus:border-accent/50 focus:outline-none"
               />
-              {errors.image_url && <span className="text-xs text-red-400/90">{errors.image_url}</span>}
+              <span className="text-xs text-textLight/40">Saisissez une image de couverture si vous en avez une.</span>
             </div>
 
             <div className="flex flex-col gap-2">

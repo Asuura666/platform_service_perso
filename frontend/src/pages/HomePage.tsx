@@ -136,7 +136,7 @@ const HomePage = () => {
             className="group relative overflow-hidden rounded-3xl border border-muted/40 bg-panel/80 shadow-panel"
           >
             <div className="absolute inset-0">
-              <img
+              <img loading="lazy"
                 src={category.image}
                 alt={category.label}
                 className="h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-105 group-hover:opacity-80"

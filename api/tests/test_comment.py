@@ -1,19 +1,23 @@
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from accounts.models import User
+from accounts.models import Feature, User
 from api.models import Webtoon
 
 
 class CommentAPITests(APITestCase):
     def setUp(self):
+        cache.clear()
         self.login_url = reverse('login')
+        self.feature = Feature.objects.get(code='webtoon_management')
         self.owner = User.objects.create_user(
             username='comment_owner',
             email='comment_owner@example.com',
             password='Secure123',
         )
+        self.owner.features.add(self.feature)
         self.webtoon = Webtoon.objects.create(
             title='Ethereal World',
             type='Webtoon',
@@ -46,8 +50,8 @@ class CommentAPITests(APITestCase):
 
         list_response = self.client.get(comments_url)
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(list_response.data), 1)
-        self.assertEqual(list_response.data[0]['text'], payload['text'])
+        self.assertEqual(list_response.data['count'], 1)
+        self.assertEqual(list_response.data['results'][0]['text'], payload['text'])
 
     def test_other_user_cannot_comment_foreign_webtoon(self):
         self.authenticate('comment_owner', 'Secure123')
@@ -55,11 +59,12 @@ class CommentAPITests(APITestCase):
         self.client.post(comments_url, {'text': 'Première note.'}, format='json')
 
         other_client = self.client.__class__()
-        User.objects.create_user(
+        other_user = User.objects.create_user(
             username='comment_guest',
             email='guest@example.com',
             password='GuestPass456',
         )
+        other_user.features.add(self.feature)
         other_login = other_client.post(
             self.login_url,
             {'username': 'comment_guest', 'password': 'GuestPass456'},

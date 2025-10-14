@@ -1,19 +1,23 @@
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from accounts.models import User
+from accounts.models import Feature, User
 from api.models import Webtoon
 
 
 class ChapterAPITests(APITestCase):
     def setUp(self):
+        cache.clear()
         self.login_url = reverse('login')
+        self.feature = Feature.objects.get(code='webtoon_management')
         self.user = User.objects.create_user(
             username='chapter_user',
             email='chapter@example.com',
             password='chapPass123',
         )
+        self.user.features.add(self.feature)
         self.webtoon = Webtoon.objects.create(
             title='Tower of God',
             type='Manhwa',
@@ -49,8 +53,8 @@ class ChapterAPITests(APITestCase):
 
         list_response = self.client.get(chapters_url)
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(list_response.data), 1)
-        self.assertEqual(list_response.data[0]['title'], 'Retrouvailles')
+        self.assertEqual(list_response.data['count'], 1)
+        self.assertEqual(list_response.data['results'][0]['title'], 'Retrouvailles')
 
     def test_other_user_cannot_access_chapters(self):
         self.authenticate()
@@ -63,11 +67,12 @@ class ChapterAPITests(APITestCase):
         self.client.post(chapters_url, payload, format='json')
 
         other_client = self.client.__class__()
-        User.objects.create_user(
+        other_user = User.objects.create_user(
             username='intrus',
             email='intrus@example.com',
             password='Password789',
         )
+        other_user.features.add(self.feature)
         other_login = other_client.post(
             self.login_url,
             {'username': 'intrus', 'password': 'Password789'},

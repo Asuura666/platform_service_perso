@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { ExternalLink, PencilLine, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import type { Webtoon } from '@/types/webtoon'
 import { formatDate, prettifyLink, toStars } from '@/utils/format'
@@ -20,11 +20,11 @@ const cardVariants = {
   hover: { scale: 1.03, boxShadow: '0px 18px 45px rgba(20, 35, 80, 0.45)' }
 }
 
-const WebtoonCard = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCardProps) => {
+const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCardProps) => {
   const [imageError, setImageError] = useState(false)
-  const ratingValue = Number.isFinite(webtoon.rating) ? webtoon.rating : 0
-  const stars = toStars(ratingValue)
-  const ratingLabel = ratingValue.toFixed(1)
+  const ratingValue = useMemo(() => (Number.isFinite(webtoon.rating) ? webtoon.rating : 0), [webtoon.rating])
+  const stars = useMemo(() => toStars(ratingValue), [ratingValue])
+  const ratingLabel = useMemo(() => ratingValue.toFixed(1), [ratingValue])
 
   return (
     <motion.article
@@ -87,7 +87,7 @@ const WebtoonCard = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCardProps) 
                   'text-accent/30': state === 'empty'
                 })}
               >
-                {state === 'empty' ? '☆' : '★'}
+                {state === 'empty' ? 'o' : '*'}
               </span>
             ))}
             <span className="ml-2 text-xs font-semibold text-textLight/60">{ratingLabel}/5</span>
@@ -107,7 +107,7 @@ const WebtoonCard = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCardProps) 
             onClick={() => onSelect(webtoon)}
             className="rounded-2xl border border-accent/50 bg-accent/15 px-4 py-2 text-sm font-semibold text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            Voir détails
+            Voir details
           </motion.button>
           <div className="flex items-center gap-2">
             {onEdit && (
@@ -138,5 +138,20 @@ const WebtoonCard = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCardProps) 
     </motion.article>
   )
 }
+
+const WebtoonCard = memo(WebtoonCardComponent, (prev, next) => {
+  if (prev.onSelect !== next.onSelect || prev.onEdit !== next.onEdit || prev.onDelete !== next.onDelete) {
+    return false
+  }
+  const prevWebtoon = prev.webtoon
+  const nextWebtoon = next.webtoon
+  return (
+    prevWebtoon.id === nextWebtoon.id &&
+    prevWebtoon.updated_at === nextWebtoon.updated_at &&
+    prevWebtoon.chapter === nextWebtoon.chapter &&
+    prevWebtoon.rating === nextWebtoon.rating &&
+    prevWebtoon.image_url === nextWebtoon.image_url
+  )
+})
 
 export default WebtoonCard
