@@ -37,7 +37,7 @@ const GlobalErrorBoundary = ({ children }: { children: ReactNode }) => {
     (error: Error, info: ErrorInfo) => {
       const message = error.message || "Une erreur inattendue s'est produite."
       push({ type: 'error', message, duration: 0 })
-      if (process.env.NODE_ENV !== "production") {
+      if (import.meta.env.DEV) {
         // eslint-disable-next-line no-console
         console.error('Captured by GlobalErrorBoundary:', error, info)
       }
