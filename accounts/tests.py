@@ -57,7 +57,7 @@ class AdminUserManagementTests(APITestCase):
         self.authenticate(self.superuser)
         response = self.client.get(self.admin_features_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        codes = {feature["code"] for feature in response.json()}
+        codes = {feature["code"] for feature in response.json()["results"]}
         expected_codes = set(Feature.objects.values_list("code", flat=True))
         self.assertTrue(expected_codes.issubset(codes))
 
