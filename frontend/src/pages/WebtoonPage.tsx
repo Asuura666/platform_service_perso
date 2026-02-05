@@ -8,6 +8,7 @@ import WebtoonCard from '@/components/WebtoonCard'
 import WebtoonGridSkeleton from '@/components/skeletons/WebtoonGridSkeleton'
 import { createWebtoon, deleteWebtoon, getWebtoons, updateWebtoon } from '@/api/webtoons'
 import { useAuth } from '@/providers/AuthProvider'
+import { useDebounce } from '@/hooks/useDebounce'
 import { notifyError, notifyInfo, notifySuccess, notifyWarning } from '@/utils/notificationBus'
 import type { Webtoon, WebtoonPayload } from '@/types/webtoon'
 
@@ -71,6 +72,7 @@ const mergeWebtoonLists = (current: Webtoon[], incoming: Webtoon[]) => {
 
 const WebtoonPage = () => {
   const { searchValue, registerAddHandler, openAuthModal } = useLayout()
+  const debouncedSearch = useDebounce(searchValue, 400)
   const { isAuthenticated, loading: authLoading, hasFeature, user } = useAuth()
   const [webtoons, setWebtoons] = useState<Webtoon[]>([])
   const [loading, setLoading] = useState(false)
@@ -127,7 +129,7 @@ const WebtoonPage = () => {
       activeRequestRef.current = controller
 
       try {
-        const data = await getWebtoons({ page, search: searchValue.trim() || undefined }, { signal: controller.signal })
+        const data = await getWebtoons({ page, search: debouncedSearch.trim() || undefined }, { signal: controller.signal })
         const incoming = data.results
         const merged = append
           ? mergeWebtoonLists(webtoonsRef.current, incoming)
@@ -179,7 +181,7 @@ const WebtoonPage = () => {
         }
       }
     },
-    [isAuthenticated, canManageWebtoons, openAuthModal, user?.id, searchValue]
+    [isAuthenticated, canManageWebtoons, openAuthModal, user?.id, debouncedSearch]
   )
 
   useEffect(() => {
