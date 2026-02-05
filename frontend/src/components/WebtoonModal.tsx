@@ -79,7 +79,7 @@ const WebtoonModal = ({ webtoon, isOpen, onClose, onEdit }: WebtoonModalProps) =
           onClick={onClose}
         >
           <motion.div
-            className="glass-card scrollbar-thin relative grid max-h-[100dvh] w-full grid-cols-1 overflow-hidden rounded-t-3xl border border-accent/20 shadow-glow sm:max-h-[90vh] sm:max-w-5xl sm:rounded-3xl lg:grid-cols-[320px_1fr]"
+            className="glass-card scrollbar-thin relative grid max-h-[100dvh] w-full grid-cols-1 overflow-hidden rounded-t-3xl border border-accent/20 sm:max-h-[90vh] sm:max-w-5xl sm:rounded-3xl lg:grid-cols-[320px_1fr]"
             variants={isMobile ? dialog : dialogDesktop}
             transition={isMobile ? { type: 'spring', stiffness: 300, damping: 30 } : { type: 'spring', stiffness: 220, damping: 26 }}
             onClick={(event) => event.stopPropagation()}
@@ -161,7 +161,7 @@ const WebtoonModal = ({ webtoon, isOpen, onClose, onEdit }: WebtoonModalProps) =
                     disabled={!onEdit}
                     onClick={() => onEdit?.(webtoon)}
                     className={clsx(
-                      'inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold shadow-glow transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:py-3',
+                      'inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:py-3',
                       onEdit
                         ? 'bg-gradient-to-r from-accent to-accentSoft text-white hover:brightness-105'
                         : 'cursor-not-allowed bg-muted/40 text-textLight/40'

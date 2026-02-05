@@ -134,7 +134,7 @@ const AddWebtoonModal = ({ isOpen, onClose, onSubmit, webtoon }: AddWebtoonModal
         >
           <motion.form
             onSubmit={handleSubmit}
-            className="glass-card relative flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-accent/20 shadow-glow sm:max-h-[90vh] sm:max-w-3xl sm:rounded-3xl"
+            className="glass-card relative flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-accent/20 sm:max-h-[90vh] sm:max-w-3xl sm:rounded-3xl"
             variants={isMobile ? dialog : dialogDesktop}
             transition={isMobile ? { type: 'spring', stiffness: 300, damping: 30 } : { type: 'spring', stiffness: 220, damping: 26 }}
             onClick={(event) => event.stopPropagation()}
@@ -310,7 +310,7 @@ const AddWebtoonModal = ({ isOpen, onClose, onSubmit, webtoon }: AddWebtoonModal
                 type="submit"
                 disabled={submitting}
                 className={clsx(
-                  'inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-2.5 text-sm font-semibold text-white shadow-glow transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-6 sm:py-3',
+                  'inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-2.5 text-sm font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-6 sm:py-3',
                   submitting && 'cursor-not-allowed opacity-60'
                 )}
               >

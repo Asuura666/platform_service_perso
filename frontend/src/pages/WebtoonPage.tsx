@@ -386,7 +386,7 @@ const WebtoonPage = () => {
           <button
             type="button"
             onClick={openAuthModal}
-            className="rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Se connecter / Creer un compte
           </button>
@@ -479,7 +479,7 @@ const WebtoonPage = () => {
                 type="button"
                 disabled={loadingMore}
                 onClick={handleLoadMore}
-                className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-5 py-3 text-sm font-semibold text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-5 py-3 text-sm font-semibold text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loadingMore ? <Loader2 size={18} className="animate-spin" /> : null}
                 {loadingMore ? 'Chargement...' : 'Charger plus de webtoons'}

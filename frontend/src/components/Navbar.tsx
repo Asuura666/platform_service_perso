@@ -83,7 +83,7 @@ const NavbarComponent = ({
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={onLogout}
-                className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.35em] text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-3"
+                className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.35em] text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-3"
               >
                 <LogOut size={16} />
                 <span className="hidden sm:inline">Se deconnecter</span>
@@ -95,7 +95,7 @@ const NavbarComponent = ({
               whileTap={{ scale: 0.97 }}
               type="button"
               onClick={onAuthAction}
-              className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.35em] text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-3"
+              className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.35em] text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-3"
             >
               <LogIn size={16} />
               <span className="hidden sm:inline">Se connecter</span>
@@ -121,7 +121,7 @@ const NavbarComponent = ({
             onClick={handleAddClick}
             disabled={disableAddButton}
             className={clsx(
-              'relative hidden items-center gap-2 overflow-hidden rounded-2xl px-5 py-3 font-semibold shadow-glow transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:ring-accent/60 sm:flex',
+              'relative hidden items-center gap-2 overflow-hidden rounded-2xl px-5 py-3 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:ring-accent/60 sm:flex',
               disableAddButton
                 ? 'cursor-not-allowed bg-muted/40 text-textLight/40'
                 : 'bg-gradient-to-r from-accent to-accentSoft text-white hover:brightness-105'
@@ -154,7 +154,7 @@ const NavbarComponent = ({
           onClick={handleAddClick}
           disabled={disableAddButton}
           className={clsx(
-            'flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold shadow-glow transition sm:hidden',
+            'flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition sm:hidden',
             disableAddButton
               ? 'cursor-not-allowed border border-muted/50 bg-muted/40 text-textLight/40'
               : 'border border-accent/40 bg-accent/20 text-accent hover:bg-accent/30'

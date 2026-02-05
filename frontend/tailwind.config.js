@@ -6,23 +6,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#0d0d0d',
-        panel: '#1a1a1a',
-        surface: '#151515',
-        accent: '#2a67ff',
-        accentSoft: '#355eff',
-        muted: '#2e2e2e',
-        textLight: '#e0e0e0'
+        background: '#0a0a0b',
+        panel: '#141416',
+        surface: '#1a1a1e',
+        accent: '#4f7df5',
+        accentSoft: '#6b8ff7',
+        muted: '#27272a',
+        textLight: '#d4d4d8'
       },
       fontFamily: {
         sans: ['"Poppins"', '"Roboto"', 'ui-sans-serif', 'system-ui']
       },
       boxShadow: {
-        glow: '0 0 25px rgba(42, 103, 255, 0.35)',
-        panel: '0px 18px 40px rgba(10, 20, 45, 0.35)'
+        glow: '0 0 12px rgba(79, 125, 245, 0.12)',
+        panel: '0 4px 24px rgba(0, 0, 0, 0.3)'
       },
       backgroundImage: {
-        'gradient-glow': 'radial-gradient(circle at top, rgba(42, 103, 255, 0.45), transparent 60%)'
+        'gradient-glow': 'radial-gradient(circle at top, rgba(79, 125, 245, 0.15), transparent 60%)'
       },
       borderRadius: {
         xl: '1.5rem'

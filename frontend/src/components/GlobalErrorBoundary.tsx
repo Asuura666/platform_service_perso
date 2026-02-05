@@ -54,7 +54,7 @@ const GlobalErrorBoundary = ({ children }: { children: ReactNode }) => {
       <button
         type="button"
         onClick={() => window.location.reload()}
-        className="rounded-2xl bg-gradient-to-r from-red-500 to-red-400 px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-red-500/20"
+        className="rounded-2xl bg-gradient-to-r from-red-500 to-red-400 px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-red-500/20"
       >
         Recharger la page
       </button>

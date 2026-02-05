@@ -138,7 +138,7 @@ const NotificationToast = ({
       exit={{ opacity: 0, y: -16, scale: 0.96 }}
       transition={{ duration: 0.2 }}
       className={clsx(
-        'pointer-events-auto w-full max-w-sm overflow-hidden rounded-2xl border px-4 py-3 shadow-glow backdrop-blur',
+        'pointer-events-auto w-full max-w-sm overflow-hidden rounded-2xl border px-4 py-3 backdrop-blur',
         {
           'border-emerald-500/40 bg-emerald-600/15 text-emerald-100': notification.type === 'success',
           'border-sky-500/40 bg-sky-600/15 text-sky-100': notification.type === 'info',

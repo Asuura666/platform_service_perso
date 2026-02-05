@@ -70,7 +70,7 @@ const ProfilePage = () => {
         {/* Header */}
         <div className="border-b border-muted/30 px-4 py-6 sm:px-8">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accentSoft text-white shadow-glow">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accentSoft text-white">
               <UserIcon size={28} />
             </div>
             <div>
@@ -142,7 +142,7 @@ const ProfilePage = () => {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={saving}
-            className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-6 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-105 disabled:opacity-60"
+            className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-6 py-3 text-sm font-semibold text-white transition hover:brightness-105 disabled:opacity-60"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             {saving ? 'Sauvegarde...' : 'Sauvegarder'}

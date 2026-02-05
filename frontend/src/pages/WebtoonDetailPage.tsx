@@ -201,7 +201,7 @@ const WebtoonDetailPage = () => {
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 onClick={() => setIsEditOpen(true)}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:brightness-105"
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-105"
               >
                 <PencilLine size={16} /> Modifier
               </button>

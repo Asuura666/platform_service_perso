@@ -52,7 +52,7 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
     <nav className="flex h-full w-72 flex-col bg-panel/80 backdrop-blur-xl shadow-panel">
       <div className="px-6 pb-6 pt-8">
         <div className="flex items-center gap-3 rounded-3xl border border-muted/70 bg-surface/60 px-5 py-4 shadow-panel">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accentSoft text-white shadow-glow">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accentSoft text-white">
             <BookOpen size={22} strokeWidth={1.8} />
           </div>
           <div>
@@ -79,7 +79,7 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
                   ? 'cursor-not-allowed bg-surface/50 text-muted'
                   : 'hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70',
                 isActive
-                  ? 'glow-border text-white shadow-glow'
+                  ? 'glow-border text-white'
                   : 'bg-surface/70 text-textLight/70 hover:shadow-panel'
               )}
             >
