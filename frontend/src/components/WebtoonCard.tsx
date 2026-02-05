@@ -37,7 +37,7 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
       <button
         type="button"
         onClick={() => onSelect(webtoon)}
-        className="relative h-48 w-full overflow-hidden"
+        className="relative h-40 w-full overflow-hidden sm:h-48"
         aria-label={`Ouvrir ${webtoon.title}`}
       >
         <div className="absolute inset-0 bg-gradient-glow opacity-70 transition-opacity group-hover:opacity-90" />
@@ -48,41 +48,41 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
           alt={`Illustration du webtoon ${webtoon.title}`}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-black/70 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-accent">
+        <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-black/70 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-accent sm:left-4 sm:top-4 sm:px-3">
           {webtoon.type}
         </span>
-        <span className="absolute right-4 top-4 inline-flex items-center rounded-full bg-black/55 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white/80">
+        <span className="absolute right-3 top-3 inline-flex items-center rounded-full bg-black/55 px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-wide text-white/80 sm:right-4 sm:top-4 sm:px-3 sm:text-[0.65rem]">
           {webtoon.status}
         </span>
       </button>
 
-      <div className="flex flex-1 flex-col gap-4 px-5 pb-5 pt-4">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="line-clamp-2 text-lg font-semibold text-white">{webtoon.title}</h3>
+      <div className="flex flex-1 flex-col gap-3 px-4 pb-4 pt-3 sm:gap-4 sm:px-5 sm:pb-5 sm:pt-4">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
+          <h3 className="line-clamp-2 text-base font-semibold text-white sm:text-lg">{webtoon.title}</h3>
           <motion.a
             href={webtoon.link}
             target="_blank"
             rel="noreferrer"
             whileHover={{ scale: 1.1 }}
             onClick={(event) => event.stopPropagation()}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-accent/40 bg-accent/10 text-accent transition hover:bg-accent/20"
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-2xl border border-accent/40 bg-accent/10 text-accent transition hover:bg-accent/20 sm:h-10 sm:w-10"
           >
-            <ExternalLink size={18} />
+            <ExternalLink size={16} />
           </motion.a>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-textLight/50">
+        <div className="flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textLight/50 sm:text-xs">
           <span>{webtoon.language}</span>
           <span className="h-1 w-1 rounded-full bg-textLight/40" />
-          <span>Chapitre {webtoon.chapter}</span>
+          <span>Ch. {webtoon.chapter}</span>
         </div>
 
-        <div className="flex flex-col gap-2 text-sm text-textLight/70">
+        <div className="flex flex-col gap-1.5 text-sm text-textLight/70 sm:gap-2">
           <div className="flex items-center gap-1 text-accent">
             {stars.map((state, index) => (
               <span
                 key={`${webtoon.id}-star-${index}`}
-                className={clsx('text-lg', {
+                className={clsx('text-base sm:text-lg', {
                   'text-accent': state !== 'empty',
                   'text-accent/30': state === 'empty'
                 })}
@@ -92,33 +92,33 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
             ))}
             <span className="ml-2 text-xs font-semibold text-textLight/60">{ratingLabel}/5</span>
           </div>
-          <div className="text-xs uppercase tracking-[0.35em] text-textLight/40">
+          <div className="truncate text-[0.65rem] uppercase tracking-[0.35em] text-textLight/40 sm:text-xs">
             {prettifyLink(webtoon.link)}
           </div>
-          <div className="text-xs text-textLight/50">
-            Mise à jour : <span className="text-textLight/70">{formatDate(webtoon.updated_at ?? webtoon.last_read_date)}</span>
+          <div className="text-[0.65rem] text-textLight/50 sm:text-xs">
+            MAJ : <span className="text-textLight/70">{formatDate(webtoon.updated_at ?? webtoon.last_read_date)}</span>
           </div>
         </div>
 
-        <div className="mt-auto flex items-center justify-between pt-2">
+        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           <motion.button
             type="button"
             whileTap={{ scale: 0.96 }}
             onClick={() => onSelect(webtoon)}
-            className="rounded-2xl border border-accent/50 bg-accent/15 px-4 py-2 text-sm font-semibold text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="rounded-2xl border border-accent/50 bg-accent/15 px-3 py-2 text-xs font-semibold text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:text-sm"
           >
-            Voir details
+            Details
           </motion.button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {onEdit && (
               <motion.button
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={() => onEdit(webtoon)}
-                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-muted/50 bg-surface/70 text-textLight/70 transition hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-muted/50 bg-surface/70 text-textLight/70 transition hover:text-white sm:h-10 sm:w-10"
                 aria-label="Modifier"
               >
-                <PencilLine size={18} />
+                <PencilLine size={16} />
               </motion.button>
             )}
             {onDelete && (
@@ -126,10 +126,10 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={() => onDelete(webtoon)}
-                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-muted/60 bg-surface/70 text-textLight/50 transition hover:border-red-500/60 hover:text-red-400"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-muted/60 bg-surface/70 text-textLight/50 transition hover:border-red-500/60 hover:text-red-400 sm:h-10 sm:w-10"
                 aria-label="Supprimer"
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} />
               </motion.button>
             )}
           </div>

@@ -43,22 +43,22 @@ const NavbarComponent = ({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex flex-col gap-5 border-b border-muted/30 bg-background/80 px-4 py-5 backdrop-blur-2xl sm:px-6 lg:px-10">
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-30 flex flex-col gap-3 border-b border-muted/30 bg-background/80 px-4 py-3 backdrop-blur-2xl sm:gap-5 sm:px-6 sm:py-5 lg:px-10">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="flex h-11 w-11 items-center justify-center rounded-2xl border border-muted/60 bg-surface/70 text-textLight/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 lg:hidden"
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl border border-muted/60 bg-surface/70 text-textLight/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 sm:h-11 sm:w-11 lg:hidden"
           aria-label="Ouvrir le menu"
         >
           <Menu size={20} strokeWidth={1.8} />
         </button>
-        <div className="flex flex-col">
-          <span className="text-xs font-semibold uppercase tracking-[0.45em] text-accent/70">Dashboard</span>
-          <h1 className="text-2xl font-semibold text-white md:text-3xl">{pageTitle}</h1>
-          <p className="text-sm text-textLight/60">{subtitle}</p>
+        <div className="flex min-w-0 flex-col">
+          <span className="text-[0.65rem] font-semibold uppercase tracking-[0.45em] text-accent/70 sm:text-xs">Dashboard</span>
+          <h1 className="truncate text-xl font-semibold text-white sm:text-2xl md:text-3xl">{pageTitle}</h1>
+          <p className="hidden text-sm text-textLight/60 sm:block">{subtitle}</p>
         </div>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <motion.button
             whileTap={{ scale: 0.96 }}
             type="button"
@@ -83,10 +83,10 @@ const NavbarComponent = ({
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={onLogout}
-                className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-4 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.35em] text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-3"
               >
                 <LogOut size={16} />
-                Se deconnecter
+                <span className="hidden sm:inline">Se deconnecter</span>
               </motion.button>
             </div>
           ) : (
@@ -95,17 +95,17 @@ const NavbarComponent = ({
               whileTap={{ scale: 0.97 }}
               type="button"
               onClick={onAuthAction}
-              className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-4 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.35em] text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-3"
             >
               <LogIn size={16} />
-              Se connecter
+              <span className="hidden sm:inline">Se connecter</span>
             </motion.button>
           )}
           <motion.button
             whileTap={{ scale: 0.96 }}
             type="button"
             onClick={toggleTheme}
-            className="group flex h-11 w-11 items-center justify-center rounded-2xl border border-muted/50 bg-surface/80 text-textLight/70 transition-all hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 sm:hidden"
+            className="group flex h-10 w-10 items-center justify-center rounded-2xl border border-muted/50 bg-surface/80 text-textLight/70 transition-all hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 sm:hidden"
             aria-label="Changer le theme"
           >
             {theme === 'dark' ? (
@@ -136,14 +136,14 @@ const NavbarComponent = ({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <motion.label
           layout
-          className="group flex w-full items-center gap-3 rounded-3xl border border-muted/50 bg-surface/80 px-5 py-3 shadow-panel transition-all hover:border-accent/60 sm:max-w-md"
+          className="group flex w-full items-center gap-3 rounded-3xl border border-muted/50 bg-surface/80 px-4 py-2.5 shadow-panel transition-all hover:border-accent/60 sm:max-w-md sm:px-5 sm:py-3"
         >
           <Search className="text-textLight/50 transition-colors group-hover:text-white" size={18} />
           <input
             value={searchValue}
             onChange={handleSearch}
             type="search"
-            placeholder="Rechercher un webtoon, un auteur, un statut..."
+            placeholder="Rechercher un webtoon..."
             className="flex-1 bg-transparent text-sm text-textLight/80 placeholder:text-textLight/40 focus:outline-none"
           />
         </motion.label>
