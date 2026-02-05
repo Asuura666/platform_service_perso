@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import { motion } from 'framer-motion'
 import { ExternalLink, PencilLine, Trash2 } from 'lucide-react'
 import { memo, useMemo, useState } from 'react'
@@ -7,7 +8,6 @@ import { formatDate, prettifyLink, toStars } from '@/utils/format'
 
 type WebtoonCardProps = {
   webtoon: Webtoon
-  onSelect: (webtoon: Webtoon) => void
   onEdit?: (webtoon: Webtoon) => void
   onDelete?: (webtoon: Webtoon) => void
 }
@@ -20,8 +20,9 @@ const cardVariants = {
   hover: { scale: 1.03, boxShadow: '0px 18px 45px rgba(20, 35, 80, 0.45)' }
 }
 
-const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCardProps) => {
+const WebtoonCardComponent = ({ webtoon, onEdit, onDelete }: WebtoonCardProps) => {
   const [imageError, setImageError] = useState(false)
+  const navigate = useNavigate()
   const ratingValue = useMemo(() => (Number.isFinite(webtoon.rating) ? webtoon.rating : 0), [webtoon.rating])
   const stars = useMemo(() => toStars(ratingValue), [ratingValue])
   const ratingLabel = useMemo(() => ratingValue.toFixed(1), [ratingValue])
@@ -36,7 +37,7 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
     >
       <button
         type="button"
-        onClick={() => onSelect(webtoon)}
+        onClick={() => navigate(`/webtoons/${webtoon.id}`)}
         className="relative h-40 w-full overflow-hidden sm:h-48"
         aria-label={`Ouvrir ${webtoon.title}`}
       >
@@ -104,7 +105,7 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
           <motion.button
             type="button"
             whileTap={{ scale: 0.96 }}
-            onClick={() => onSelect(webtoon)}
+            onClick={() => navigate(`/webtoons/${webtoon.id}`)}
             className="rounded-2xl border border-accent/50 bg-accent/15 px-3 py-2 text-xs font-semibold text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:text-sm"
           >
             Details
@@ -140,7 +141,7 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
 }
 
 const WebtoonCard = memo(WebtoonCardComponent, (prev, next) => {
-  if (prev.onSelect !== next.onSelect || prev.onEdit !== next.onEdit || prev.onDelete !== next.onDelete) {
+  if (prev.onEdit !== next.onEdit || prev.onDelete !== next.onDelete) {
     return false
   }
   const prevWebtoon = prev.webtoon

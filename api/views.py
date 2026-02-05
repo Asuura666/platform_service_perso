@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.db.models import Count
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import status, viewsets
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -33,6 +34,10 @@ class WebtoonViewSet(viewsets.ModelViewSet):
     serializer_class = WebtoonSerializer
     permission_classes = (IsAuthenticated, HasFeaturePermission, IsOwner)
     required_feature = "webtoon_management"
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ("title", "type", "language", "status", "comment")
+    ordering_fields = ("title", "rating", "chapter", "updated_at", "created_at")
+    ordering = ("-updated_at",)
 
     def get_queryset(self):
         return (

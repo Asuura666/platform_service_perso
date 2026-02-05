@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { BookOpen, Home, Info, ShieldCheck, Sparkles } from 'lucide-react'
+import { BookOpen, Home, Info, ShieldCheck, Sparkles, User } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -27,7 +27,8 @@ const baseNavItems: NavConfig[] = [
   { label: 'Accueil', path: '/', icon: Home },
   { label: 'Webtoon Book', path: '/webtoons', icon: BookOpen, requiredFeature: 'webtoon_management', requireAuth: true },
   { label: 'Information', path: '/info', icon: Info },
-  { label: 'Scraper', path: '/scraper', icon: Sparkles, requiredFeature: 'scraper_access', requireAuth: true }
+  { label: 'Scraper', path: '/scraper', icon: Sparkles, requiredFeature: 'scraper_access', requireAuth: true },
+  { label: 'Mon Profil', path: '/profile', icon: User, requireAuth: true }
 ]
 
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {

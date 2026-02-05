@@ -5,6 +5,7 @@ from .permissions import IsSuperUser
 from .serializers import (
     AdminUserSerializer,
     FeatureSerializer,
+    ProfileUpdateSerializer,
     RegisterSerializer,
     UserSerializer,
 )
@@ -18,10 +19,13 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
 
 
-class ProfileView(generics.RetrieveAPIView):
-    """Retourne le profil de l'utilisateur courant."""
+class ProfileView(generics.RetrieveUpdateAPIView):
+    """Retourne et met à jour le profil de l'utilisateur courant."""
 
-    serializer_class = UserSerializer
+    def get_serializer_class(self):
+        if self.request.method in ('PUT', 'PATCH'):
+            return ProfileUpdateSerializer
+        return UserSerializer
 
     def get_object(self):
         return self.request.user

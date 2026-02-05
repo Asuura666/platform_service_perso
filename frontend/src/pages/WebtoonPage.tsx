@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import axios, { AxiosError } from 'axios'
 import AddWebtoonModal from '@/components/AddWebtoonModal'
 import { useLayout } from '@/components/Layout'
-import WebtoonModal from '@/components/WebtoonModal'
 import WebtoonCard from '@/components/WebtoonCard'
 import WebtoonGridSkeleton from '@/components/skeletons/WebtoonGridSkeleton'
 import { createWebtoon, deleteWebtoon, getWebtoons, updateWebtoon } from '@/api/webtoons'
@@ -77,7 +76,6 @@ const WebtoonPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [selectedWebtoon, setSelectedWebtoon] = useState<Webtoon | null>(null)
   const [editingWebtoon, setEditingWebtoon] = useState<Webtoon | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
@@ -129,7 +127,7 @@ const WebtoonPage = () => {
       activeRequestRef.current = controller
 
       try {
-        const data = await getWebtoons({ page }, { signal: controller.signal })
+        const data = await getWebtoons({ page, search: searchValue.trim() || undefined }, { signal: controller.signal })
         const incoming = data.results
         const merged = append
           ? mergeWebtoonLists(webtoonsRef.current, incoming)
@@ -181,7 +179,7 @@ const WebtoonPage = () => {
         }
       }
     },
-    [isAuthenticated, canManageWebtoons, openAuthModal, user?.id]
+    [isAuthenticated, canManageWebtoons, openAuthModal, user?.id, searchValue]
   )
 
   useEffect(() => {
@@ -235,6 +233,7 @@ const WebtoonPage = () => {
   }, [registerAddHandler, ensureAuthenticated, canManageWebtoons])
 
   const filteredWebtoons = useMemo(() => {
+    // Search is now server-side
     if (!searchValue.trim()) return webtoons
     const lower = searchValue.toLowerCase()
     return webtoons.filter((webtoon) =>
@@ -283,7 +282,6 @@ const WebtoonPage = () => {
       setWebtoons(nextList)
       setEditingWebtoon(null)
       setIsAddModalOpen(false)
-      setSelectedWebtoon((prev) => (prev && prev.id === webtoonId ? updated : prev))
       setCachedWebtoons(user?.id, { webtoons: nextList })
       notifySuccess('Webtoon mis a jour.')
       fetchWebtoons({ page: currentPage, background: true, merge: true })
@@ -301,7 +299,6 @@ const WebtoonPage = () => {
       const nextList = webtoonsRef.current.filter((item) => item.id !== webtoon.id)
       webtoonsRef.current = nextList
       setWebtoons(nextList)
-      setSelectedWebtoon((prev) => (prev && prev.id === webtoon.id ? null : prev))
       const nextTotal = Math.max(0, totalCount - 1)
       setTotalCount(nextTotal)
       const targetPage = nextList.length === 0 && currentPage > 1 ? currentPage - 1 : currentPage
@@ -450,7 +447,6 @@ const WebtoonPage = () => {
                 >
                   <WebtoonCard
                     webtoon={webtoon}
-                    onSelect={setSelectedWebtoon}
                     onEdit={openEditModal}
                     onDelete={handleDelete}
                   />
@@ -474,18 +470,7 @@ const WebtoonPage = () => {
           )}
         </>
       )}
-
-      <WebtoonModal
-        webtoon={selectedWebtoon}
-        isOpen={Boolean(selectedWebtoon)}
-        onClose={() => setSelectedWebtoon(null)}
-        onEdit={(webtoon) => {
-          openEditModal(webtoon)
-          setSelectedWebtoon(null)
-        }}
-      />
-
-      <AddWebtoonModal
+<AddWebtoonModal
         isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false)
