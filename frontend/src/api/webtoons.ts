@@ -8,11 +8,22 @@ export type PaginatedResponse<T> = {
   results: T[]
 }
 
-export const getWebtoons = async (params?: { page?: number }, config?: { signal?: AbortSignal }) => {
+export type WebtoonQueryParams = {
+  page?: number
+  search?: string
+  ordering?: string
+}
+
+export const getWebtoons = async (params?: WebtoonQueryParams, config?: { signal?: AbortSignal }) => {
   const { data } = await apiClient.get<PaginatedResponse<Webtoon>>('/webtoons/', {
     params,
     signal: config?.signal
   })
+  return data
+}
+
+export const getWebtoon = async (id: number | string) => {
+  const { data } = await apiClient.get<Webtoon>(`/webtoons/${id}/`)
   return data
 }
 
@@ -32,6 +43,7 @@ export const deleteWebtoon = async (id: number) => {
 
 export const webtoonApi = {
   getWebtoons,
+  getWebtoon,
   createWebtoon,
   updateWebtoon,
   deleteWebtoon

@@ -96,3 +96,18 @@ class AdminUserSerializer(serializers.ModelSerializer):
         if features is not None:
             instance.features.set(features)
         return instance
+
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer pour la mise à jour du profil utilisateur."""
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+        )
+        read_only_fields = ("id",)

@@ -1,149 +1,88 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { BookOpen, Home, Info, ShieldCheck, Sparkles } from 'lucide-react'
+import { BookOpen, Home, Info, ShieldCheck, Sparkles, User } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 import { memo, useMemo } from 'react'
 import { useAuth } from '@/providers/AuthProvider'
 
-type SidebarProps = {
-  isMobileOpen?: boolean
-  onClose?: () => void
-}
-
-type NavItem = {
-  label: string
-  path: string
-  icon: LucideIcon
-  disabled?: boolean
-}
-
-type NavConfig = NavItem & {
-  requiredFeature?: string
-  requireAuth?: boolean
-}
+type SidebarProps = { isMobileOpen?: boolean; onClose?: () => void }
+type NavConfig = { label: string; path: string; icon: LucideIcon; requiredFeature?: string; requireAuth?: boolean; disabled?: boolean }
 
 const baseNavItems: NavConfig[] = [
   { label: 'Accueil', path: '/', icon: Home },
-  { label: 'Webtoon Book', path: '/webtoons', icon: BookOpen, requiredFeature: 'webtoon_management', requireAuth: true },
-  { label: 'Information', path: '/info', icon: Info },
-  { label: 'Scraper', path: '/scraper', icon: Sparkles, requiredFeature: 'scraper_access', requireAuth: true }
+  { label: 'Bibliothèque', path: '/webtoons', icon: BookOpen, requiredFeature: 'webtoon_management', requireAuth: true },
+  { label: 'Info', path: '/info', icon: Info },
+  { label: 'Scraper', path: '/scraper', icon: Sparkles, requiredFeature: 'scraper_access', requireAuth: true },
+  { label: 'Profil', path: '/profile', icon: User, requireAuth: true },
 ]
 
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const location = useLocation()
+  const { pathname } = useLocation()
   const { user, isAuthenticated, hasFeature } = useAuth()
-  const activePath = useMemo(() => location.pathname, [location])
-  const navItems = useMemo(() => {
-    const items = baseNavItems.map<NavItem>((item) => {
-      const disabled =
-        (item.requireAuth && !isAuthenticated) ||
-        (item.requiredFeature ? !hasFeature(item.requiredFeature) : false)
-      return { label: item.label, path: item.path, icon: item.icon, disabled }
-    })
-    if (user?.is_superuser) {
-      items.push({ label: 'Administration', path: '/admin', icon: ShieldCheck })
-    }
-    return items
+  const items = useMemo(() => {
+    const list = baseNavItems.map((item) => ({
+      ...item,
+      disabled: (item.requireAuth && !isAuthenticated) || (item.requiredFeature ? !hasFeature(item.requiredFeature) : false)
+    }))
+    if (user?.is_superuser) list.push({ label: 'Admin', path: '/admin', icon: ShieldCheck, disabled: false })
+    return list
   }, [user, isAuthenticated, hasFeature])
 
   return (
-    <nav className="flex h-full w-72 flex-col bg-panel/80 backdrop-blur-xl shadow-panel">
-      <div className="px-6 pb-6 pt-8">
-        <div className="flex items-center gap-3 rounded-3xl border border-muted/70 bg-surface/60 px-5 py-4 shadow-panel">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accentSoft text-white shadow-glow">
-            <BookOpen size={22} strokeWidth={1.8} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent/80">Webtoon</p>
-            <p className="text-lg font-semibold text-white">Book Dashboard</p>
-          </div>
+    <nav className="flex h-full w-64 flex-col bg-panel/95 backdrop-blur-md">
+      <div className="flex items-center gap-3 px-5 py-6">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+          <BookOpen size={18} />
         </div>
+        <span className="text-lg font-bold text-white">Webtoon Book</span>
       </div>
-
-      <div className="flex flex-col gap-2 px-4">
-        {navItems.map(({ label, path, icon: Icon, disabled }) => {
-          const isActive = activePath === path || (path !== '/' && activePath.startsWith(path))
+      <div className="flex flex-col gap-0.5 px-3">
+        {items.map(({ label, path, icon: Icon, disabled }) => {
+          const active = pathname === path || (path !== '/' && pathname.startsWith(path))
           return (
             <NavLink
               key={path}
               to={disabled ? '#' : path}
-              onClick={() => {
-                if (disabled) return
-                onNavigate?.()
-              }}
+              onClick={() => { if (!disabled) onNavigate?.() }}
               className={clsx(
-                'relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300',
-                disabled
-                  ? 'cursor-not-allowed bg-surface/50 text-muted'
-                  : 'hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70',
-                isActive
-                  ? 'glow-border text-white shadow-glow'
-                  : 'bg-surface/70 text-textLight/70 hover:shadow-panel'
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
+                disabled ? 'cursor-not-allowed text-textMuted/40'
+                  : active ? 'bg-accent/10 text-accent' : 'text-textMuted hover:bg-surface hover:text-white'
               )}
             >
-              <Icon size={18} strokeWidth={1.8} className="shrink-0" />
+              <Icon size={18} />
               <span>{label}</span>
-              {disabled && (
-                <span className="ml-auto inline-flex rounded-full bg-accent/20 px-3 py-1 text-xs text-accent">
-                  Bientôt
-                </span>
-              )}
-              {isActive && (
-                <span className="absolute inset-y-0 left-0 w-1 rounded-l-2xl bg-gradient-to-b from-accent to-accentSoft" />
-              )}
+              {disabled && <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-[0.6rem] text-textMuted">Bientôt</span>}
             </NavLink>
           )
         })}
       </div>
-
-      <div className="mt-auto px-5 pb-8 pt-10">
-        <div className="rounded-2xl border border-muted/40 bg-surface/50 p-5">
-          <p className="text-xs text-textLight/60">
-            Interface inspirée d&apos;AsuraScans pour suivre vos lectures, vos saisons préférées et les nouvelles
-            sorties à ne pas manquer.
-          </p>
+      <div className="mt-auto px-4 pb-6">
+        <div className="rounded-lg bg-surface/80 p-4 text-xs text-textMuted">
+          Votre tracker manga personnel.
         </div>
       </div>
     </nav>
   )
 }
 
-const sidebarVariants = {
-  hidden: { x: -320, opacity: 0 },
-  visible: { x: 0, opacity: 1 }
-}
-
-const overlayVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 }
-}
-
 const Sidebar = ({ isMobileOpen = false, onClose }: SidebarProps) => (
   <>
-    <aside className="hidden h-full w-72 lg:block">
-      <SidebarContent />
-    </aside>
-
+    <aside className="hidden h-full w-64 lg:block"><SidebarContent /></aside>
     <AnimatePresence>
       {isMobileOpen && (
         <>
           <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={overlayVariants}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-40 bg-black/60 lg:hidden"
           />
           <motion.aside
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={sidebarVariants}
-            transition={{ type: 'spring', stiffness: 260, damping: 25 }}
-            className="fixed inset-y-0 left-0 z-50 w-72 lg:hidden"
+            initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed inset-y-0 left-0 z-50 w-64 lg:hidden"
           >
             <SidebarContent onNavigate={onClose} />
           </motion.aside>

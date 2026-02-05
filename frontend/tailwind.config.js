@@ -6,26 +6,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#0d0d0d',
-        panel: '#1a1a1a',
-        surface: '#151515',
-        accent: '#2a67ff',
-        accentSoft: '#355eff',
-        muted: '#2e2e2e',
-        textLight: '#e0e0e0'
+        background: '#111113',
+        panel: '#1a1a1e',
+        surface: '#222226',
+        accent: '#f97316',
+        accentSoft: '#fb923c',
+        accentAmber: '#fbbf24',
+        muted: '#2a2a2e',
+        textLight: '#e4e4e7',
+        textMuted: '#71717a'
       },
       fontFamily: {
-        sans: ['"Poppins"', '"Roboto"', 'ui-sans-serif', 'system-ui']
+        sans: ['"DM Sans"', '"Poppins"', 'ui-sans-serif', 'system-ui']
       },
       boxShadow: {
-        glow: '0 0 25px rgba(42, 103, 255, 0.35)',
-        panel: '0px 18px 40px rgba(10, 20, 45, 0.35)'
+        card: '0 2px 16px rgba(0, 0, 0, 0.4)',
+        panel: '0 4px 24px rgba(0, 0, 0, 0.35)',
+        hero: '0 8px 40px rgba(0, 0, 0, 0.6)'
       },
       backgroundImage: {
-        'gradient-glow': 'radial-gradient(circle at top, rgba(42, 103, 255, 0.45), transparent 60%)'
+        'gradient-hero': 'linear-gradient(to top, #111113 0%, transparent 60%)',
+        'gradient-card': 'linear-gradient(to top, rgba(17,17,19,0.95) 0%, transparent 100%)'
       },
       borderRadius: {
-        xl: '1.5rem'
+        xl: '1rem',
+        '2xl': '1rem',
+        '3xl': '1.25rem'
       }
     }
   },

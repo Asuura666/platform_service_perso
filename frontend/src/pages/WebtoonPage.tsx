@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import axios, { AxiosError } from 'axios'
 import AddWebtoonModal from '@/components/AddWebtoonModal'
 import { useLayout } from '@/components/Layout'
-import WebtoonModal from '@/components/WebtoonModal'
 import WebtoonCard from '@/components/WebtoonCard'
 import WebtoonGridSkeleton from '@/components/skeletons/WebtoonGridSkeleton'
 import { createWebtoon, deleteWebtoon, getWebtoons, updateWebtoon } from '@/api/webtoons'
 import { useAuth } from '@/providers/AuthProvider'
+import { useDebounce } from '@/hooks/useDebounce'
 import { notifyError, notifyInfo, notifySuccess, notifyWarning } from '@/utils/notificationBus'
 import type { Webtoon, WebtoonPayload } from '@/types/webtoon'
 
@@ -72,12 +72,12 @@ const mergeWebtoonLists = (current: Webtoon[], incoming: Webtoon[]) => {
 
 const WebtoonPage = () => {
   const { searchValue, registerAddHandler, openAuthModal } = useLayout()
+  const debouncedSearch = useDebounce(searchValue, 400)
   const { isAuthenticated, loading: authLoading, hasFeature, user } = useAuth()
   const [webtoons, setWebtoons] = useState<Webtoon[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [selectedWebtoon, setSelectedWebtoon] = useState<Webtoon | null>(null)
   const [editingWebtoon, setEditingWebtoon] = useState<Webtoon | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
@@ -129,7 +129,7 @@ const WebtoonPage = () => {
       activeRequestRef.current = controller
 
       try {
-        const data = await getWebtoons({ page }, { signal: controller.signal })
+        const data = await getWebtoons({ page, search: debouncedSearch.trim() || undefined }, { signal: controller.signal })
         const incoming = data.results
         const merged = append
           ? mergeWebtoonLists(webtoonsRef.current, incoming)
@@ -149,7 +149,7 @@ const WebtoonPage = () => {
           webtoons: merged,
           totalCount: data.count,
           hasMore: Boolean(data.next),
-          ....(!background || append ? { currentPage: page } : {})
+          ...(!background || append ? { currentPage: page } : {})
         })
       } catch (err) {
         if (axios.isCancel(err)) {
@@ -181,7 +181,7 @@ const WebtoonPage = () => {
         }
       }
     },
-    [isAuthenticated, canManageWebtoons, openAuthModal, user?.id]
+    [isAuthenticated, canManageWebtoons, openAuthModal, user?.id, debouncedSearch]
   )
 
   useEffect(() => {
@@ -235,6 +235,7 @@ const WebtoonPage = () => {
   }, [registerAddHandler, ensureAuthenticated, canManageWebtoons])
 
   const filteredWebtoons = useMemo(() => {
+    // Search is now server-side
     if (!searchValue.trim()) return webtoons
     const lower = searchValue.toLowerCase()
     return webtoons.filter((webtoon) =>
@@ -283,7 +284,6 @@ const WebtoonPage = () => {
       setWebtoons(nextList)
       setEditingWebtoon(null)
       setIsAddModalOpen(false)
-      setSelectedWebtoon((prev) => (prev && prev.id === webtoonId ? updated : prev))
       setCachedWebtoons(user?.id, { webtoons: nextList })
       notifySuccess('Webtoon mis a jour.')
       fetchWebtoons({ page: currentPage, background: true, merge: true })
@@ -301,7 +301,6 @@ const WebtoonPage = () => {
       const nextList = webtoonsRef.current.filter((item) => item.id !== webtoon.id)
       webtoonsRef.current = nextList
       setWebtoons(nextList)
-      setSelectedWebtoon((prev) => (prev && prev.id === webtoon.id ? null : prev))
       const nextTotal = Math.max(0, totalCount - 1)
       setTotalCount(nextTotal)
       const targetPage = nextList.length === 0 && currentPage > 1 ? currentPage - 1 : currentPage
@@ -325,6 +324,21 @@ const WebtoonPage = () => {
       notifyError('La suppression a echoue.')
     }
   }
+
+  const handleChapterChange = useCallback(async (webtoon: Webtoon, delta: number) => {
+    if (!ensureAuthenticated()) return
+    const newChapter = Math.max(1, webtoon.chapter + delta)
+    if (newChapter === webtoon.chapter) return
+    try {
+      const updated = await updateWebtoon(webtoon.id, { ...webtoon, chapter: newChapter })
+      const nextList = webtoonsRef.current.map((item) => (item.id === webtoon.id ? updated : item))
+      webtoonsRef.current = nextList
+      setWebtoons(nextList)
+      setCachedWebtoons(user?.id, { webtoons: nextList })
+    } catch {
+      notifyError('Erreur lors de la mise à jour du chapitre.')
+    }
+  }, [ensureAuthenticated, user?.id])
 
   const handleLoadMore = useCallback(() => {
     if (loadingMore || !hasMore) return
@@ -372,7 +386,7 @@ const WebtoonPage = () => {
           <button
             type="button"
             onClick={openAuthModal}
-            className="rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Se connecter / Creer un compte
           </button>
@@ -436,7 +450,7 @@ const WebtoonPage = () => {
         <>
           <motion.div
             layout
-            className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
             <AnimatePresence>
@@ -450,9 +464,9 @@ const WebtoonPage = () => {
                 >
                   <WebtoonCard
                     webtoon={webtoon}
-                    onSelect={setSelectedWebtoon}
                     onEdit={openEditModal}
                     onDelete={handleDelete}
+                    onChapterChange={handleChapterChange}
                   />
                 </motion.div>
               ))}
@@ -465,7 +479,7 @@ const WebtoonPage = () => {
                 type="button"
                 disabled={loadingMore}
                 onClick={handleLoadMore}
-                className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-5 py-3 text-sm font-semibold text-accent shadow-glow transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-5 py-3 text-sm font-semibold text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loadingMore ? <Loader2 size={18} className="animate-spin" /> : null}
                 {loadingMore ? 'Chargement...' : 'Charger plus de webtoons'}
@@ -474,18 +488,7 @@ const WebtoonPage = () => {
           )}
         </>
       )}
-
-      <WebtoonModal
-        webtoon={selectedWebtoon}
-        isOpen={Boolean(selectedWebtoon)}
-        onClose={() => setSelectedWebtoon(null)}
-        onEdit={(webtoon) => {
-          openEditModal(webtoon)
-          setSelectedWebtoon(null)
-        }}
-      />
-
-      <AddWebtoonModal
+<AddWebtoonModal
         isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false)
