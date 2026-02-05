@@ -149,7 +149,7 @@ const WebtoonPage = () => {
           webtoons: merged,
           totalCount: data.count,
           hasMore: Boolean(data.next),
-          ....(!background || append ? { currentPage: page } : {})
+          ...(!background || append ? { currentPage: page } : {})
         })
       } catch (err) {
         if (axios.isCancel(err)) {
