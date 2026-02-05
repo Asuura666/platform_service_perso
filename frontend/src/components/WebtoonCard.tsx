@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { motion } from 'framer-motion'
-import { ExternalLink, PencilLine, Trash2 } from 'lucide-react'
+import { ExternalLink, Minus, PencilLine, Plus, Trash2 } from 'lucide-react'
 import { memo, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import type { Webtoon } from '@/types/webtoon'
@@ -10,6 +10,7 @@ type WebtoonCardProps = {
   webtoon: Webtoon
   onEdit?: (webtoon: Webtoon) => void
   onDelete?: (webtoon: Webtoon) => void
+  onChapterChange?: (webtoon: Webtoon, delta: number) => void
 }
 
 const FALLBACK_IMAGE =
@@ -20,7 +21,7 @@ const cardVariants = {
   hover: { scale: 1.03, boxShadow: '0px 18px 45px rgba(20, 35, 80, 0.45)' }
 }
 
-const WebtoonCardComponent = ({ webtoon, onEdit, onDelete }: WebtoonCardProps) => {
+const WebtoonCardComponent = ({ webtoon, onEdit, onDelete, onChapterChange }: WebtoonCardProps) => {
   const [imageError, setImageError] = useState(false)
   const navigate = useNavigate()
   const ratingValue = useMemo(() => (Number.isFinite(webtoon.rating) ? webtoon.rating : 0), [webtoon.rating])
@@ -72,10 +73,33 @@ const WebtoonCardComponent = ({ webtoon, onEdit, onDelete }: WebtoonCardProps) =
           </motion.a>
         </div>
 
-        <div className="flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textLight/50 sm:text-xs">
-          <span>{webtoon.language}</span>
-          <span className="h-1 w-1 rounded-full bg-textLight/40" />
-          <span>Ch. {webtoon.chapter}</span>
+        <div className="flex items-center justify-between text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textLight/50 sm:text-xs">
+          <div className="flex items-center gap-2">
+            <span>{webtoon.language}</span>
+            <span className="h-1 w-1 rounded-full bg-textLight/40" />
+            <span>Ch. {webtoon.chapter}</span>
+          </div>
+          {onChapterChange && (
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => onChapterChange(webtoon, -1)}
+                disabled={webtoon.chapter <= 1}
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-muted/50 bg-surface/80 text-textLight/60 transition hover:border-accent/50 hover:text-white active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label="Chapitre précédent"
+              >
+                <Minus size={12} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onChapterChange(webtoon, 1)}
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-accent/40 bg-accent/15 text-accent transition hover:bg-accent/25 active:scale-90"
+                aria-label="Chapitre suivant"
+              >
+                <Plus size={12} />
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5 text-sm text-textLight/70 sm:gap-2">
@@ -141,7 +165,7 @@ const WebtoonCardComponent = ({ webtoon, onEdit, onDelete }: WebtoonCardProps) =
 }
 
 const WebtoonCard = memo(WebtoonCardComponent, (prev, next) => {
-  if (prev.onEdit !== next.onEdit || prev.onDelete !== next.onDelete) {
+  if (prev.onEdit !== next.onEdit || prev.onDelete !== next.onDelete || prev.onChapterChange !== next.onChapterChange) {
     return false
   }
   const prevWebtoon = prev.webtoon

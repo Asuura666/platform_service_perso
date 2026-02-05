@@ -325,6 +325,21 @@ const WebtoonPage = () => {
     }
   }
 
+  const handleChapterChange = useCallback(async (webtoon: Webtoon, delta: number) => {
+    if (!ensureAuthenticated()) return
+    const newChapter = Math.max(1, webtoon.chapter + delta)
+    if (newChapter === webtoon.chapter) return
+    try {
+      const updated = await updateWebtoon(webtoon.id, { ...webtoon, chapter: newChapter })
+      const nextList = webtoonsRef.current.map((item) => (item.id === webtoon.id ? updated : item))
+      webtoonsRef.current = nextList
+      setWebtoons(nextList)
+      setCachedWebtoons(user?.id, { webtoons: nextList })
+    } catch {
+      notifyError('Erreur lors de la mise à jour du chapitre.')
+    }
+  }, [ensureAuthenticated, user?.id])
+
   const handleLoadMore = useCallback(() => {
     if (loadingMore || !hasMore) return
     fetchWebtoons({ page: currentPage + 1, append: true })
@@ -451,6 +466,7 @@ const WebtoonPage = () => {
                     webtoon={webtoon}
                     onEdit={openEditModal}
                     onDelete={handleDelete}
+                    onChapterChange={handleChapterChange}
                   />
                 </motion.div>
               ))}
