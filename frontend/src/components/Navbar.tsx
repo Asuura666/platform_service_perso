@@ -1,8 +1,6 @@
-import { motion } from 'framer-motion'
 import clsx from 'clsx'
-import { LogIn, LogOut, Menu, Moon, PlusCircle, Search, SunMedium, User } from 'lucide-react'
+import { LogIn, LogOut, Menu, PlusCircle, Search, User } from 'lucide-react'
 import { memo, type ChangeEvent } from 'react'
-import { useTheme } from '@/providers/ThemeProvider'
 
 type NavbarProps = {
   pageTitle?: string
@@ -20,7 +18,7 @@ type NavbarProps = {
 
 const NavbarComponent = ({
   pageTitle = 'Webtoon Book',
-  subtitle = 'Retrouvez vos webtoons preferes et vos dernieres lectures',
+  subtitle,
   searchValue,
   onSearchChange,
   onAddWebtoon,
@@ -31,143 +29,79 @@ const NavbarComponent = ({
   onAuthAction,
   onLogout
 }: NavbarProps) => {
-  const { theme, toggleTheme } = useTheme()
-
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value)
   }
 
-  const handleAddClick = () => {
-    if (disableAddButton) return
-    onAddWebtoon()
-  }
-
   return (
-    <header className="sticky top-0 z-30 flex flex-col gap-3 border-b border-muted/30 bg-background/80 px-4 py-3 backdrop-blur-2xl sm:gap-5 sm:px-6 sm:py-5 lg:px-10">
-      <div className="flex items-center gap-3 sm:gap-4">
+    <header className="sticky top-0 z-30 border-b border-muted/30 bg-background/95 backdrop-blur-md">
+      <div className="flex items-center gap-3 px-4 py-3 sm:px-6 lg:px-10">
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl border border-muted/60 bg-surface/70 text-textLight/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 sm:h-11 sm:w-11 lg:hidden"
-          aria-label="Ouvrir le menu"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-textMuted transition hover:bg-surface hover:text-white lg:hidden"
+          aria-label="Menu"
         >
-          <Menu size={20} strokeWidth={1.8} />
+          <Menu size={20} />
         </button>
-        <div className="flex min-w-0 flex-col">
-          <span className="text-[0.65rem] font-semibold uppercase tracking-[0.45em] text-accent/70 sm:text-xs">Dashboard</span>
-          <h1 className="truncate text-xl font-semibold text-white sm:text-2xl md:text-3xl">{pageTitle}</h1>
-          <p className="hidden text-sm text-textLight/60 sm:block">{subtitle}</p>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-lg font-semibold text-white sm:text-xl">{pageTitle}</h1>
+          {subtitle && <p className="hidden truncate text-xs text-textMuted sm:block">{subtitle}</p>}
         </div>
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            type="button"
-            onClick={toggleTheme}
-            className="group hidden h-11 w-11 items-center justify-center rounded-2xl border border-muted/50 bg-surface/80 text-textLight/70 transition-all hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 sm:flex"
-            aria-label="Changer le theme"
-          >
-            {theme === 'dark' ? (
-              <SunMedium size={20} className="transition-transform group-hover:rotate-12" />
-            ) : (
-              <Moon size={19} className="transition-transform group-hover:-rotate-12" />
-            )}
-          </motion.button>
+        <div className="flex items-center gap-2">
           {isAuthenticated ? (
-            <div className="flex items-center gap-2">
-              <span className="hidden items-center gap-2 rounded-2xl border border-muted/50 bg-surface/70 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-textLight/50 sm:flex">
-                <User size={16} />
-                {userName}
+            <>
+              <span className="hidden items-center gap-1.5 rounded-lg bg-surface px-2.5 py-1.5 text-xs font-medium text-textMuted sm:flex">
+                <User size={14} /> {userName}
               </span>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 type="button"
                 onClick={onLogout}
-                className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.35em] text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-3"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-textMuted transition hover:bg-surface hover:text-white sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-1.5"
               >
                 <LogOut size={16} />
-                <span className="hidden sm:inline">Se deconnecter</span>
-              </motion.button>
-            </div>
+                <span className="hidden text-xs font-medium sm:inline">Déco</span>
+              </button>
+            </>
           ) : (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+            <button
               type="button"
               onClick={onAuthAction}
-              className="flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.35em] text-accent transition hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-3"
+              className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white transition hover:bg-accent/90"
             >
-              <LogIn size={16} />
-              <span className="hidden sm:inline">Se connecter</span>
-            </motion.button>
+              <LogIn size={14} /> <span>Connexion</span>
+            </button>
           )}
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            type="button"
-            onClick={toggleTheme}
-            className="group flex h-10 w-10 items-center justify-center rounded-2xl border border-muted/50 bg-surface/80 text-textLight/70 transition-all hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 sm:hidden"
-            aria-label="Changer le theme"
-          >
-            {theme === 'dark' ? (
-              <SunMedium size={20} className="transition-transform group-hover:rotate-12" />
-            ) : (
-              <Moon size={19} className="transition-transform group-hover:-rotate-12" />
-            )}
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            type="button"
-            onClick={handleAddClick}
-            disabled={disableAddButton}
-            className={clsx(
-              'relative hidden items-center gap-2 overflow-hidden rounded-2xl px-5 py-3 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:ring-accent/60 sm:flex',
-              disableAddButton
-                ? 'cursor-not-allowed bg-muted/40 text-textLight/40'
-                : 'bg-gradient-to-r from-accent to-accentSoft text-white hover:brightness-105'
-            )}
-          >
-            <span className="absolute inset-0 opacity-0 transition-opacity duration-500 hover:opacity-30" />
-            <PlusCircle size={18} strokeWidth={1.8} />
-            Ajouter un webtoon
-          </motion.button>
         </div>
       </div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <motion.label
-          layout
-          className="group flex w-full items-center gap-3 rounded-3xl border border-muted/50 bg-surface/80 px-4 py-2.5 shadow-panel transition-all hover:border-accent/60 sm:max-w-md sm:px-5 sm:py-3"
-        >
-          <Search className="text-textLight/50 transition-colors group-hover:text-white" size={18} />
+      <div className="flex items-center gap-2 px-4 pb-3 sm:px-6 lg:px-10">
+        <label className="flex flex-1 items-center gap-2 rounded-lg bg-surface px-3 py-2">
+          <Search className="text-textMuted" size={16} />
           <input
             value={searchValue}
             onChange={handleSearch}
             type="search"
-            placeholder="Rechercher un webtoon..."
-            className="flex-1 bg-transparent text-sm text-textLight/80 placeholder:text-textLight/40 focus:outline-none"
+            placeholder="Rechercher..."
+            className="flex-1 bg-transparent text-sm text-textLight placeholder:text-textMuted/60 focus:outline-none"
           />
-        </motion.label>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+        </label>
+        <button
           type="button"
-          onClick={handleAddClick}
+          onClick={onAddWebtoon}
           disabled={disableAddButton}
           className={clsx(
-            'flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition sm:hidden',
+            'flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition sm:px-4',
             disableAddButton
-              ? 'cursor-not-allowed border border-muted/50 bg-muted/40 text-textLight/40'
-              : 'border border-accent/40 bg-accent/20 text-accent hover:bg-accent/30'
+              ? 'cursor-not-allowed bg-muted/50 text-textMuted/50'
+              : 'bg-accent text-white hover:bg-accent/90 active:scale-95'
           )}
         >
-          <PlusCircle size={18} strokeWidth={1.8} />
-          Ajouter un webtoon
-        </motion.button>
+          <PlusCircle size={16} />
+          <span className="hidden sm:inline">Ajouter</span>
+        </button>
       </div>
     </header>
   )
 }
 
-const Navbar = memo(NavbarComponent)
-
-export default Navbar
+export default memo(NavbarComponent)

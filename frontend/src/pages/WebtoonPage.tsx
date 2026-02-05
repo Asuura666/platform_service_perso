@@ -450,7 +450,7 @@ const WebtoonPage = () => {
         <>
           <motion.div
             layout
-            className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
             <AnimatePresence>

@@ -1,166 +1,200 @@
 import { motion } from 'framer-motion'
-import { BookOpen, Flame, Sparkles, Trophy } from 'lucide-react'
-import { useEffect } from 'react'
+import { BookOpen, ChevronRight, LogIn, Play, Star, TrendingUp } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/providers/AuthProvider'
 import { useLayout } from '@/components/Layout'
+import apiClient from '@/api/client'
+import type { Webtoon } from '@/types/webtoon'
 
-const heroHighlights = [
-  {
-    title: 'Library Glow',
-    description: 'Une sélection automatique des webtoons que vous suivez avec notifications de sortie.',
-    icon: BookOpen
-  },
-  {
-    title: 'Radar Sportif',
-    description: 'Classement dynamique des webtoons sportifs les plus lus du moment.',
-    icon: Trophy
-  },
-  {
-    title: 'Découvertes',
-    description: 'Algorithme de recommandation basé sur vos commentaires et vos notes.',
-    icon: Sparkles
-  }
-]
+type Section = { title: string; icon: React.ReactNode; webtoons: Webtoon[] }
 
-const categoryTiles = [
-  {
-    label: 'Webtoon Book',
-    image:
-      'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80',
-    description: 'Votre collection complète, vos notes personnelles et vos chapitres favoris.',
-    gradient: 'from-accent/60 via-accentSoft/50 to-transparent'
-  },
-  {
-    label: 'Sport',
-    image:
-      'https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1200&q=80',
-    description: 'Suivez vos séries sportives intenses avec un suivi précis des sorties.',
-    gradient: 'from-emerald-500/60 via-emerald-400/40 to-transparent'
-  },
-  {
-    label: 'Découverte',
-    image:
-      'https://images.unsplash.com/photo-1522072782030-1980f516cc8b?auto=format&fit=crop&w=1200&q=80',
-    description: 'Une sélection inspirée d’AsuraScans pour ne rater aucun nouveau webtoon.',
-    gradient: 'from-purple-500/60 via-purple-400/40 to-transparent'
-  }
-]
+const FALLBACK = 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=600&q=80'
 
-const highlightVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: index * 0.1 + 0.2, duration: 0.4 }
-  })
+const HeroSlide = ({ webtoon, onNavigate }: { webtoon: Webtoon; onNavigate: (id: number) => void }) => (
+  <div className="relative h-[60vh] min-h-[360px] w-full overflow-hidden sm:h-[55vh]">
+    <img
+      src={webtoon.image_url || FALLBACK}
+      alt={webtoon.title}
+      className="absolute inset-0 h-full w-full object-cover"
+      onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK }}
+    />
+    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+    <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
+    <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 lg:p-12">
+      <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+        <span className="rounded bg-accent px-2 py-0.5 font-semibold text-white">{webtoon.type}</span>
+        <span className="text-textMuted">{webtoon.language}</span>
+        <span className="text-textMuted">•</span>
+        <span className="text-textMuted">Ch. {webtoon.chapter}</span>
+        {webtoon.rating > 0 && (
+          <>
+            <span className="text-textMuted">•</span>
+            <span className="flex items-center gap-1 text-accentAmber"><Star size={12} fill="currentColor" />{webtoon.rating.toFixed(1)}</span>
+          </>
+        )}
+      </div>
+      <h1 className="mt-2 max-w-xl text-2xl font-bold text-white sm:text-4xl lg:text-5xl">{webtoon.title}</h1>
+      {webtoon.comment && (
+        <p className="mt-2 line-clamp-2 max-w-lg text-sm text-textLight/70">{webtoon.comment}</p>
+      )}
+      <div className="mt-4 flex items-center gap-3">
+        <button
+          onClick={() => onNavigate(webtoon.id)}
+          className="flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-accent/90 active:scale-95"
+        >
+          <Play size={16} fill="currentColor" /> Continuer Ch.{webtoon.chapter}
+        </button>
+        {webtoon.link && (
+          <a
+            href={webtoon.link}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
+          >
+            Lire en ligne
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+)
+
+const Carousel = ({ title, icon, webtoons, onNavigate }: Section & { onNavigate: (id: number) => void }) => {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  if (webtoons.length === 0) return null
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-10">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+          {icon} {title}
+        </h2>
+        <span className="text-xs text-textMuted">{webtoons.length} titres</span>
+      </div>
+      <div
+        ref={scrollRef}
+        className="no-scrollbar flex gap-3 overflow-x-auto px-4 pb-2 sm:px-6 lg:px-10"
+      >
+        {webtoons.map((w) => (
+          <motion.button
+            key={w.id}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => onNavigate(w.id)}
+            className="group relative flex-shrink-0 overflow-hidden rounded-lg"
+            style={{ width: 140 }}
+          >
+            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-surface">
+              <img
+                src={w.image_url || FALLBACK}
+                alt={w.title}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK }}
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-card opacity-0 transition-opacity group-hover:opacity-100" />
+              {w.rating > 0 && (
+                <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded bg-black/70 px-1.5 py-0.5 text-[0.6rem] font-semibold text-accentAmber">
+                  <Star size={9} fill="currentColor" />{w.rating.toFixed(1)}
+                </div>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 pt-6">
+                <span className="text-[0.6rem] font-medium text-accent">Ch. {w.chapter}</span>
+              </div>
+            </div>
+            <p className="mt-1.5 line-clamp-2 text-left text-xs font-medium text-textLight/80">{w.title}</p>
+          </motion.button>
+        ))}
+      </div>
+    </section>
+  )
 }
 
 const HomePage = () => {
-  const { registerAddHandler } = useLayout()
+  const navigate = useNavigate()
+  const { isAuthenticated, loading: authLoading, hasFeature } = useAuth()
+  const { registerAddHandler, openAuthModal } = useLayout()
+  const [hero, setHero] = useState<Webtoon | null>(null)
+  const [sections, setSections] = useState<Section[]>([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => { registerAddHandler(null) }, [registerAddHandler])
+
+  const goTo = useCallback((id: number) => navigate(`/webtoons/${id}`), [navigate])
 
   useEffect(() => {
-    registerAddHandler(null)
-  }, [registerAddHandler])
+    if (authLoading || !isAuthenticated || !hasFeature('webtoon_management')) return
+    let cancelled = false
+
+    const load = async () => {
+      try {
+        const [reading, topRated, completed] = await Promise.all([
+          apiClient.get('/webtoons/', { params: { search: 'En cours', ordering: '-updated_at', page_size: 20 } }),
+          apiClient.get('/webtoons/', { params: { ordering: '-rating', page_size: 20 } }),
+          apiClient.get('/webtoons/', { params: { search: 'Terminé', ordering: '-updated_at', page_size: 20 } }),
+        ])
+        if (cancelled) return
+
+        const readingList: Webtoon[] = reading.data.results ?? []
+        const topList: Webtoon[] = topRated.data.results ?? []
+        const completedList: Webtoon[] = completed.data.results ?? []
+
+        // Pick a random hero from top rated that has an image
+        const heroPool = topList.filter(w => w.image_url)
+        setHero(heroPool.length > 0 ? heroPool[Math.floor(Math.random() * Math.min(5, heroPool.length))] : readingList[0] ?? null)
+
+        setSections([
+          { title: 'En cours de lecture', icon: <BookOpen size={20} className="text-accent" />, webtoons: readingList },
+          { title: 'Les mieux notés', icon: <Star size={20} className="text-accentAmber" />, webtoons: topList.filter(w => w.rating > 0) },
+          { title: 'Terminés', icon: <TrendingUp size={20} className="text-green-400" />, webtoons: completedList },
+        ])
+        setLoaded(true)
+      } catch { /* ignore */ }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [authLoading, isAuthenticated, hasFeature])
+
+  if (authLoading) return null
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center gap-6 px-4 py-20 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-accent/10">
+          <BookOpen size={36} className="text-accent" />
+        </div>
+        <h1 className="text-3xl font-bold text-white sm:text-4xl">Webtoon Book</h1>
+        <p className="max-w-md text-textMuted">
+          Suivez vos lectures de manhwa, manhua et manga. Votre bibliothèque personnelle, accessible partout.
+        </p>
+        <button
+          onClick={openAuthModal}
+          className="flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-semibold text-white transition hover:bg-accent/90"
+        >
+          <LogIn size={18} /> Se connecter
+        </button>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col gap-12">
-      <section className="relative overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-panel via-surface to-background p-8 shadow-panel lg:p-12">
-        <div className="absolute -left-20 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-accent/25 blur-3xl" />
-        <div className="absolute -right-12 -top-12 h-72 w-72 rounded-full bg-accentSoft/30 blur-3xl" />
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-center">
-          <div className="space-y-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-accent">
-              Dashboard
-            </span>
-            <h2 className="text-3xl font-semibold text-white md:text-4xl">
-              Bienvenue dans <span className="text-accent">Webtoon Book</span> — une interface raffinée inspirée
-              d&apos;AsuraScans.
-            </h2>
-            <p className="max-w-2xl text-base leading-relaxed text-textLight/70">
-              Retrouvez vos lectures, vos chapitres suivis et découvrez de nouvelles sorties grâce aux sections
-              dynamiques. Chaque carte réagit au survol avec un léger glow, pour un rendu moderne et immersif.
-            </p>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {heroHighlights.map((highlight, index) => (
-                <motion.div
-                  key={highlight.title}
-                  custom={index}
-                  initial="hidden"
-                  animate="visible"
-                  variants={highlightVariants}
-                  className="glass-card flex items-start gap-3 rounded-2xl border border-accent/10 p-4"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/20 text-accent">
-                    <highlight.icon size={18} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">{highlight.title}</p>
-                    <p className="text-xs leading-relaxed text-textLight/60">{highlight.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="relative hidden h-full rounded-3xl border border-accent/30 bg-gradient-to-br from-surface via-panel to-background p-6 shadow-panel lg:flex"
+    <div className="-mx-4 -mt-6 flex flex-col gap-6 pb-8 sm:-mx-6 lg:-mx-10">
+      {hero && <HeroSlide webtoon={hero} onNavigate={goTo} />}
+      {sections.map((s) => (
+        <Carousel key={s.title} {...s} onNavigate={goTo} />
+      ))}
+      {loaded && sections.every(s => s.webtoons.length === 0) && (
+        <div className="px-4 py-12 text-center">
+          <p className="text-lg font-semibold text-white">Votre bibliothèque est vide</p>
+          <p className="mt-1 text-sm text-textMuted">Ajoutez des webtoons depuis la page Bibliothèque.</p>
+          <button
+            onClick={() => navigate('/webtoons')}
+            className="mt-4 flex items-center gap-2 mx-auto rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white"
           >
-            <div className="absolute inset-10 rounded-3xl border border-accent/30" />
-            <div className="relative flex flex-col gap-4">
-              <span className="inline-flex items-center gap-2 self-start rounded-full border border-accent/40 bg-accent/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-accent">
-                Glow Mode
-              </span>
-              <h3 className="text-2xl font-semibold text-white">Design sombre, lumineux et réactif.</h3>
-              <p className="text-sm text-textLight/60">
-                Une grille fluide de cartes réactives, le tout animé avec Framer Motion pour des transitions
-                élégantes.
-              </p>
-              <div className="mt-auto flex items-center gap-3 text-xs text-textLight/40">
-                <Flame size={18} className="text-accent" />
-                Inspiré par l&apos;esthétique d&apos;AsuraComic.
-              </div>
-            </div>
-          </motion.div>
+            Aller à la bibliothèque <ChevronRight size={16} />
+          </button>
         </div>
-      </section>
-
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {categoryTiles.map((category, index) => (
-          <motion.article
-            key={category.label}
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.45, delay: index * 0.05 }}
-            className="group relative overflow-hidden rounded-3xl border border-muted/40 bg-panel/80 shadow-panel"
-          >
-            <div className="absolute inset-0">
-              <img loading="lazy"
-                src={category.image}
-                alt={category.label}
-                className="h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-105 group-hover:opacity-80"
-              />
-              <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient}`} />
-            </div>
-            <div className="relative z-10 flex h-full flex-col justify-between p-6">
-              <div>
-                <span className="inline-flex items-center rounded-full border border-white/20 bg-black/40 px-3 py-1 text-xs uppercase tracking-[0.4em] text-white/70">
-                  Aperçu
-                </span>
-                <h3 className="mt-4 text-2xl font-semibold text-white">{category.label}</h3>
-                <p className="mt-3 text-sm text-white/75">{category.description}</p>
-              </div>
-              <button
-                type="button"
-                className="mt-6 inline-flex items-center gap-2 self-start rounded-2xl border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-white/20"
-              >
-                Explorer
-              </button>
-            </div>
-          </motion.article>
-        ))}
-      </section>
+      )}
     </div>
   )
 }
