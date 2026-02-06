@@ -1,6 +1,8 @@
+import { motion } from 'framer-motion'
 import clsx from 'clsx'
-import { LogIn, LogOut, Menu, PlusCircle, Search, User } from 'lucide-react'
+import { LogIn, LogOut, Menu, Moon, PlusCircle, Search, SunMedium, User } from 'lucide-react'
 import { memo, type ChangeEvent } from 'react'
+import { useTheme } from '@/providers/ThemeProvider'
 
 type NavbarProps = {
   pageTitle?: string
@@ -18,7 +20,7 @@ type NavbarProps = {
 
 const NavbarComponent = ({
   pageTitle = 'Webtoon Book',
-  subtitle,
+  subtitle = 'Retrouvez vos webtoons préférés et vos dernières lectures',
   searchValue,
   onSearchChange,
   onAddWebtoon,
@@ -29,79 +31,172 @@ const NavbarComponent = ({
   onAuthAction,
   onLogout
 }: NavbarProps) => {
+  const { theme, toggleTheme } = useTheme()
+
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value)
   }
 
+  const handleAddClick = () => {
+    if (disableAddButton) return
+    onAddWebtoon()
+  }
+
   return (
-    <header className="sticky top-0 z-30 border-b border-muted/30 bg-background/95 backdrop-blur-md">
-      <div className="flex items-center gap-3 px-4 py-3 sm:px-6 lg:px-10">
-        <button
-          type="button"
-          onClick={onToggleSidebar}
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-textMuted transition hover:bg-surface hover:text-white lg:hidden"
-          aria-label="Menu"
-        >
-          <Menu size={20} />
-        </button>
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold text-white sm:text-xl">{pageTitle}</h1>
-          {subtitle && <p className="hidden truncate text-xs text-textMuted sm:block">{subtitle}</p>}
-        </div>
-        <div className="flex items-center gap-2">
-          {isAuthenticated ? (
-            <>
-              <span className="hidden items-center gap-1.5 rounded-lg bg-surface px-2.5 py-1.5 text-xs font-medium text-textMuted sm:flex">
-                <User size={14} /> {userName}
-              </span>
-              <button
-                type="button"
-                onClick={onLogout}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-textMuted transition hover:bg-surface hover:text-white sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-1.5"
-              >
-                <LogOut size={16} />
-                <span className="hidden text-xs font-medium sm:inline">Déco</span>
-              </button>
-            </>
-          ) : (
-            <button
+    <header className="sticky top-0 z-40 border-b border-border/30 bg-background/60 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-background/40">
+      <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        {/* Top Row */}
+        <div className="flex items-center gap-4">
+          {/* Mobile Menu Toggle */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            type="button"
+            onClick={onToggleSidebar}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-surface/60 text-textMuted transition-colors hover:text-white lg:hidden"
+            aria-label="Ouvrir le menu"
+          >
+            <Menu size={18} strokeWidth={2} />
+          </motion.button>
+
+          {/* Page Title */}
+          <div className="flex flex-col">
+            <span className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-accent">
+              Dashboard
+            </span>
+            <h1 className="font-display text-xl font-bold text-white sm:text-2xl lg:text-3xl">
+              {pageTitle}
+            </h1>
+            <p className="hidden text-sm text-textMuted sm:block">{subtitle}</p>
+          </div>
+
+          {/* Right Actions */}
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            {/* Theme Toggle - Desktop */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
-              onClick={onAuthAction}
-              className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white transition hover:bg-accent/90"
+              onClick={toggleTheme}
+              className="hidden h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-surface/60 text-textMuted transition-all hover:text-white sm:flex"
+              aria-label="Changer le thème"
             >
-              <LogIn size={14} /> <span>Connexion</span>
-            </button>
-          )}
+              {theme === 'dark' ? (
+                <SunMedium size={18} className="transition-transform hover:rotate-12" />
+              ) : (
+                <Moon size={17} className="transition-transform hover:-rotate-12" />
+              )}
+            </motion.button>
+
+            {/* Auth Section */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2">
+                {/* User Badge */}
+                <span className="hidden items-center gap-2 rounded-xl border border-border/50 bg-surface/60 px-3 py-2 text-xs font-medium text-textMuted sm:flex">
+                  <User size={14} />
+                  <span className="max-w-[100px] truncate">{userName}</span>
+                </span>
+                {/* Logout Button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={onLogout}
+                  className="btn-secondary py-2 text-xs"
+                >
+                  <LogOut size={14} />
+                  <span className="hidden sm:inline">Déconnexion</span>
+                </motion.button>
+              </div>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="button"
+                onClick={onAuthAction}
+                className="btn-primary py-2.5 px-4 text-xs"
+              >
+                <LogIn size={14} />
+                <span>Connexion</span>
+              </motion.button>
+            )}
+
+            {/* Theme Toggle - Mobile */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={toggleTheme}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-surface/60 text-textMuted transition-all hover:text-white sm:hidden"
+              aria-label="Changer le thème"
+            >
+              {theme === 'dark' ? (
+                <SunMedium size={18} />
+              ) : (
+                <Moon size={17} />
+              )}
+            </motion.button>
+
+            {/* Add Button - Desktop */}
+            <motion.button
+              whileHover={{ scale: disableAddButton ? 1 : 1.02 }}
+              whileTap={{ scale: disableAddButton ? 1 : 0.98 }}
+              type="button"
+              onClick={handleAddClick}
+              disabled={disableAddButton}
+              className={clsx(
+                'hidden items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all sm:flex',
+                disableAddButton
+                  ? 'cursor-not-allowed border border-border/30 bg-surface/40 text-textMuted/40'
+                  : 'btn-primary'
+              )}
+            >
+              <PlusCircle size={16} strokeWidth={2} />
+              <span>Ajouter</span>
+            </motion.button>
+          </div>
         </div>
-      </div>
-      <div className="flex items-center gap-2 px-4 pb-3 sm:px-6 lg:px-10">
-        <label className="flex flex-1 items-center gap-2 rounded-lg bg-surface px-3 py-2">
-          <Search className="text-textMuted" size={16} />
-          <input
-            value={searchValue}
-            onChange={handleSearch}
-            type="search"
-            placeholder="Rechercher..."
-            className="flex-1 bg-transparent text-sm text-textLight placeholder:text-textMuted/60 focus:outline-none"
-          />
-        </label>
-        <button
-          type="button"
-          onClick={onAddWebtoon}
-          disabled={disableAddButton}
-          className={clsx(
-            'flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition sm:px-4',
-            disableAddButton
-              ? 'cursor-not-allowed bg-muted/50 text-textMuted/50'
-              : 'bg-accent text-white hover:bg-accent/90 active:scale-95'
-          )}
-        >
-          <PlusCircle size={16} />
-          <span className="hidden sm:inline">Ajouter</span>
-        </button>
+
+        {/* Search Row */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          {/* Search Input */}
+          <motion.label
+            layout
+            className="group flex flex-1 items-center gap-3 rounded-xl border border-border/40 bg-surface/60 px-4 py-2.5 transition-all hover:border-accent/40 focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-accent/20 sm:max-w-md"
+          >
+            <Search className="text-textMuted/60 transition-colors group-hover:text-accent group-focus-within:text-accent" size={18} />
+            <input
+              value={searchValue}
+              onChange={handleSearch}
+              type="search"
+              placeholder="Rechercher un webtoon..."
+              className="flex-1 bg-transparent text-sm text-textLight placeholder:text-textMuted/50 focus:outline-none"
+            />
+          </motion.label>
+
+          {/* Add Button - Mobile */}
+          <motion.button
+            whileHover={{ scale: disableAddButton ? 1 : 1.02 }}
+            whileTap={{ scale: disableAddButton ? 1 : 0.98 }}
+            type="button"
+            onClick={handleAddClick}
+            disabled={disableAddButton}
+            className={clsx(
+              'flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold sm:hidden',
+              disableAddButton
+                ? 'cursor-not-allowed border border-border/30 bg-surface/40 text-textMuted/40'
+                : 'btn-primary'
+            )}
+          >
+            <PlusCircle size={16} strokeWidth={2} />
+            Ajouter un webtoon
+          </motion.button>
+        </div>
       </div>
     </header>
   )
 }
 
-export default memo(NavbarComponent)
+const Navbar = memo(NavbarComponent)
+
+export default Navbar

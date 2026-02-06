@@ -32,15 +32,15 @@ const pageMetadata: Record<
 > = {
   '/': {
     title: 'Accueil',
-    subtitle: 'Vos univers favoris, vos lectures recentes et les tendances du moment.'
+    subtitle: 'Vos univers favoris, vos lectures récentes et les tendances du moment.'
   },
   '/webtoons': {
     title: 'Webtoon Book',
-    subtitle: 'Gerez votre collection, suivez vos lectures et explorez de nouveaux webtoons.'
+    subtitle: 'Gérez votre collection, suivez vos lectures et explorez de nouveaux webtoons.'
   },
   '/info': {
     title: 'Informations',
-    subtitle: 'Decouvrez la vision du projet, les technologies et la roadmap a venir.'
+    subtitle: 'Découvrez la vision du projet, les technologies et la roadmap à venir.'
   },
   '/scraper': {
     title: 'Scraper',
@@ -48,7 +48,28 @@ const pageMetadata: Record<
   },
   '/admin': {
     title: 'Administration',
-    subtitle: 'Gerez les comptes et attribuez les droits aux utilisateurs.'
+    subtitle: 'Gérez les comptes et attribuez les droits aux utilisateurs.'
+  }
+}
+
+const pageVariants = {
+  initial: { opacity: 0, y: 20, scale: 0.98 },
+  animate: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { 
+      duration: 0.4, 
+      ease: [0.16, 1, 0.3, 1]
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    y: -10,
+    transition: { 
+      duration: 0.2, 
+      ease: [0.16, 1, 0.3, 1]
+    }
   }
 }
 
@@ -61,12 +82,12 @@ const Layout = () => {
   const addHandlerRef = useRef<(() => void) | null>(null)
   const { isAuthenticated, user, logout } = useAuth()
 
-useEffect(() => {
-  setIsSidebarOpen(false)
-  setSearchValue('')
-  setHasAddHandler(false)
-  addHandlerRef.current = null
-}, [pathname])
+  useEffect(() => {
+    setIsSidebarOpen(false)
+    setSearchValue('')
+    setHasAddHandler(false)
+    addHandlerRef.current = null
+  }, [pathname])
 
   const registerAddHandler = useCallback((handler: (() => void) | null) => {
     addHandlerRef.current = handler ?? null
@@ -85,7 +106,7 @@ useEffect(() => {
     () =>
       pageMetadata[pathname] ?? {
         title: 'Webtoon Book',
-        subtitle: 'Retrouvez vos webtoons preferes et vos dernieres lectures'
+        subtitle: 'Retrouvez vos webtoons préférés et vos dernières lectures'
       },
     [pathname]
   )
@@ -114,6 +135,7 @@ useEffect(() => {
     <LayoutContext.Provider value={contextValue}>
       <div className="flex min-h-screen bg-background text-textLight">
         <Sidebar isMobileOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        
         <div className="relative flex flex-1 flex-col">
           <Navbar
             pageTitle={metadata.title}
@@ -128,22 +150,29 @@ useEffect(() => {
             onAuthAction={openAuthModal}
             onLogout={logout}
           />
-          <main className="flex-1 overflow-x-hidden px-4 pb-12 pt-6 sm:px-6 lg:px-10">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={pathname}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="mx-auto flex w-full max-w-7xl flex-col gap-8"
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
+          
+          <main className="flex-1 overflow-x-hidden">
+            <div className="px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={pathname}
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  className="mx-auto flex w-full max-w-7xl flex-col gap-8"
+                >
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </main>
+
+          {/* Footer Gradient */}
+          <div className="pointer-events-none fixed inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent" />
         </div>
       </div>
+      
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
     </LayoutContext.Provider>
   )
