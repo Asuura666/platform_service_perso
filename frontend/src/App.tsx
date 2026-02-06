@@ -5,6 +5,7 @@ import RequireSuperuser from './components/RequireSuperuser'
 import RouteLoader from './components/RouteLoader'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
+const CatalogPage = lazy(() => import('./pages/CatalogPage'))
 const WebtoonPage = lazy(() => import('./pages/WebtoonPage'))
 const WebtoonDetailPage = lazy(() => import('./pages/WebtoonDetailPage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
@@ -18,6 +19,7 @@ const App = () => (
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
+          <Route path="catalog" element={<CatalogPage />} />
           <Route path="webtoons" element={<WebtoonPage />} />
           <Route path="webtoons/:id" element={<WebtoonDetailPage />} />
           <Route path="profile" element={<ProfilePage />} />

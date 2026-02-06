@@ -2,6 +2,7 @@ import { AnimatePresence, motion, type Variants } from 'framer-motion'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import AuthModal from './AuthModal'
+import { InstallPrompt } from './InstallPrompt'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 import { useAuth } from '@/providers/AuthProvider'
@@ -34,9 +35,13 @@ const pageMetadata: Record<
     title: 'Accueil',
     subtitle: 'Vos univers favoris, vos lectures récentes et les tendances du moment.'
   },
+  '/catalog': {
+    title: 'Catalogue',
+    subtitle: 'Découvrez les webtoons populaires et trouvez votre prochaine lecture.'
+  },
   '/webtoons': {
-    title: 'Webtoon Book',
-    subtitle: 'Gérez votre collection, suivez vos lectures et explorez de nouveaux webtoons.'
+    title: 'Ma Bibliothèque',
+    subtitle: 'Gérez votre collection personnelle et suivez votre progression de lecture.'
   },
   '/info': {
     title: 'Informations',
@@ -174,6 +179,7 @@ const Layout = () => {
       </div>
       
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
+      <InstallPrompt />
     </LayoutContext.Provider>
   )
 }

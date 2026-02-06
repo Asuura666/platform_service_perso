@@ -33,25 +33,25 @@ const heroHighlights = [
 
 const categoryTiles = [
   {
-    label: 'Webtoon Book',
+    label: 'Catalogue',
     image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80',
-    description: 'Votre collection complète, vos notes personnelles et vos chapitres favoris.',
+    description: 'Découvrez les webtoons populaires et trouvez votre prochaine lecture.',
     gradient: 'from-accent/80 via-accent/40 to-transparent',
-    link: '/webtoons'
+    link: '/catalog'
   },
   {
     label: 'Sport',
     image: 'https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1200&q=80',
     description: 'Suivez vos séries sportives intenses avec un suivi précis des sorties.',
     gradient: 'from-emerald-500/80 via-emerald-500/40 to-transparent',
-    link: '/webtoons'
+    link: '/catalog'
   },
   {
     label: 'Découverte',
     image: 'https://images.unsplash.com/photo-1522072782030-1980f516cc8b?auto=format&fit=crop&w=1200&q=80',
     description: 'Une sélection inspirée d\'AsuraScans pour ne rater aucun nouveau webtoon.',
     gradient: 'from-purple-500/80 via-purple-500/40 to-transparent',
-    link: '/webtoons'
+    link: '/catalog'
   }
 ]
 
@@ -159,10 +159,10 @@ const HomePage = () => {
               {/* CTA */}
               <motion.div variants={itemVariants}>
                 <Link 
-                  to="/webtoons"
+                  to="/catalog"
                   className="btn-primary mt-2 inline-flex"
                 >
-                  Explorer la collection
+                  Explorer le catalogue
                   <ArrowRight size={16} />
                 </Link>
               </motion.div>

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, type Variants } from 'framer-motion'
-import { BookOpen, Home, Info, ShieldCheck, Sparkles, X } from 'lucide-react'
+import { BookOpen, Compass, Home, Info, Library, ShieldCheck, Sparkles, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -16,6 +16,7 @@ type NavItem = {
   path: string
   icon: LucideIcon
   disabled?: boolean
+  badge?: string
 }
 
 type NavConfig = NavItem & {
@@ -25,7 +26,8 @@ type NavConfig = NavItem & {
 
 const baseNavItems: NavConfig[] = [
   { label: 'Accueil', path: '/', icon: Home },
-  { label: 'Webtoon Book', path: '/webtoons', icon: BookOpen, requiredFeature: 'webtoon_management', requireAuth: true },
+  { label: 'Catalogue', path: '/catalog', icon: Compass },
+  { label: 'Ma Bibliothèque', path: '/webtoons', icon: Library, requiredFeature: 'webtoon_management', requireAuth: true },
   { label: 'Information', path: '/info', icon: Info },
   { label: 'Scraper', path: '/scraper', icon: Sparkles, requiredFeature: 'scraper_access', requireAuth: true }
 ]

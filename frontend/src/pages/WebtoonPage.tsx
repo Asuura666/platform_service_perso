@@ -376,20 +376,52 @@ const WebtoonPage = () => {
             <span>{error}</span>
           </div>
         )}
-        <div className="glass-card flex flex-col items-center gap-4 rounded-3xl border border-accent/20 px-6 py-12 text-center shadow-panel">
-          <LogIn size={28} className="text-accent" />
-          <h2 className="text-2xl font-semibold text-white">Connectez-vous pour acceder a votre Webtoon Book</h2>
-          <p className="max-w-xl text-sm text-textLight/60">
-            L'API protege les donnees avec des jetons JWT. Creez un compte puis connectez-vous pour consulter, ajouter
-            et mettre a jour vos webtoons personnels.
-          </p>
-          <button
-            type="button"
-            onClick={openAuthModal}
-            className="rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            Se connecter / Creer un compte
-          </button>
+        <div className="glass-card flex flex-col items-center gap-6 rounded-3xl border border-accent/20 px-6 py-12 text-center shadow-panel">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/15">
+            <LogIn size={32} className="text-accent" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold text-white">Votre Bibliothèque Personnelle</h2>
+            <p className="mt-2 max-w-xl text-sm text-textLight/60">
+              Créez un compte pour gérer votre collection de webtoons, suivre votre progression de lecture
+              et recevoir des notifications pour les nouvelles sorties.
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-3">
+            <button
+              type="button"
+              onClick={openAuthModal}
+              className="rounded-2xl bg-gradient-to-r from-accent to-accentSoft px-6 py-3 text-sm font-semibold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+            >
+              Se connecter / Créer un compte
+            </button>
+            <a
+              href="/catalog"
+              className="rounded-2xl border border-accent/40 bg-accent/10 px-6 py-3 text-sm font-semibold text-accent transition hover:bg-accent/20"
+            >
+              Explorer le catalogue
+            </a>
+          </div>
+
+          {/* Features preview */}
+          <div className="mt-4 grid w-full max-w-2xl gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-border/40 bg-surface/60 p-4 text-left">
+              <div className="mb-2 text-accent">📚</div>
+              <h4 className="font-semibold text-white">Suivi de lecture</h4>
+              <p className="text-xs text-textMuted">Gardez trace de vos chapitres lus</p>
+            </div>
+            <div className="rounded-2xl border border-border/40 bg-surface/60 p-4 text-left">
+              <div className="mb-2 text-accent">⭐</div>
+              <h4 className="font-semibold text-white">Notes & Avis</h4>
+              <p className="text-xs text-textMuted">Notez et commentez vos webtoons</p>
+            </div>
+            <div className="rounded-2xl border border-border/40 bg-surface/60 p-4 text-left">
+              <div className="mb-2 text-accent">🔔</div>
+              <h4 className="font-semibold text-white">Notifications</h4>
+              <p className="text-xs text-textMuted">Alertes pour les nouveaux chapitres</p>
+            </div>
+          </div>
         </div>
       </div>
     )
