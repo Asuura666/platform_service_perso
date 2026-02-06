@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, type Variants } from 'framer-motion'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import AuthModal from './AuthModal'
@@ -52,7 +52,7 @@ const pageMetadata: Record<
   }
 }
 
-const pageVariants = {
+const pageVariants: Variants = {
   initial: { opacity: 0, y: 20, scale: 0.98 },
   animate: { 
     opacity: 1, 
@@ -60,7 +60,7 @@ const pageVariants = {
     scale: 1,
     transition: { 
       duration: 0.4, 
-      ease: [0.16, 1, 0.3, 1]
+      ease: 'easeOut'
     }
   },
   exit: { 
@@ -68,7 +68,7 @@ const pageVariants = {
     y: -10,
     transition: { 
       duration: 0.2, 
-      ease: [0.16, 1, 0.3, 1]
+      ease: 'easeOut'
     }
   }
 }

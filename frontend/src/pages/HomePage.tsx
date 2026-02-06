@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import { ArrowRight, BookOpen, Flame, Sparkles, TrendingUp, Trophy, Zap } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
@@ -55,7 +55,7 @@ const categoryTiles = [
   }
 ]
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -66,14 +66,14 @@ const containerVariants = {
   }
 }
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
       duration: 0.5,
-      ease: [0.16, 1, 0.3, 1]
+      ease: 'easeOut'
     }
   }
 }
@@ -173,7 +173,7 @@ const HomePage = () => {
               variants={containerVariants}
               className="grid gap-4"
             >
-              {heroHighlights.map((highlight, index) => (
+              {heroHighlights.map((highlight) => (
                 <motion.div
                   key={highlight.title}
                   variants={itemVariants}
@@ -217,7 +217,7 @@ const HomePage = () => {
           variants={containerVariants}
           className="grid gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3"
         >
-          {categoryTiles.map((category, index) => (
+          {categoryTiles.map((category) => (
             <motion.article
               key={category.label}
               variants={itemVariants}
@@ -230,7 +230,7 @@ const HomePage = () => {
                   loading="lazy"
                   src={category.image}
                   alt={category.label}
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-110"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className={`absolute inset-0 bg-gradient-to-t ${category.gradient}`} />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />

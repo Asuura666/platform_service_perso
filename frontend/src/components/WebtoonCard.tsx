@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion'
-import { ExternalLink, PencilLine, Star, Trash2 } from 'lucide-react'
+import { motion, type Variants } from 'framer-motion'
+import { ChevronDown, ChevronUp, ExternalLink, PencilLine, Star, Trash2 } from 'lucide-react'
 import { memo, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import type { Webtoon } from '@/types/webtoon'
@@ -7,15 +7,16 @@ import { formatDate, prettifyLink, toStars } from '@/utils/format'
 
 type WebtoonCardProps = {
   webtoon: Webtoon
-  onSelect: (webtoon: Webtoon) => void
+  onSelect?: (webtoon: Webtoon) => void
   onEdit?: (webtoon: Webtoon) => void
   onDelete?: (webtoon: Webtoon) => void
+  onChapterChange?: (webtoon: Webtoon, delta: number) => void
 }
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=600&q=80'
 
-const cardVariants = {
+const cardVariants: Variants = {
   rest: { 
     scale: 1, 
     y: 0,
@@ -24,22 +25,22 @@ const cardVariants = {
     scale: 1.02, 
     y: -8,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 400,
       damping: 25
     }
   }
 }
 
-const imageVariants = {
+const imageVariants: Variants = {
   rest: { scale: 1 },
   hover: { 
     scale: 1.1,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.6, ease: 'easeOut' }
   }
 }
 
-const overlayVariants = {
+const overlayVariants: Variants = {
   rest: { opacity: 0 },
   hover: { 
     opacity: 1,
@@ -47,7 +48,7 @@ const overlayVariants = {
   }
 }
 
-const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCardProps) => {
+const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete, onChapterChange }: WebtoonCardProps) => {
   const [imageError, setImageError] = useState(false)
   const ratingValue = useMemo(() => (Number.isFinite(webtoon.rating) ? webtoon.rating : 0), [webtoon.rating])
   const stars = useMemo(() => toStars(ratingValue), [ratingValue])
@@ -62,6 +63,10 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
 
   const statusClass = statusColors[webtoon.status?.toLowerCase()] || 'bg-surface/80 text-textMuted border-border/50'
 
+  const handleSelect = () => {
+    onSelect?.(webtoon)
+  }
+
   return (
     <motion.article
       initial="rest"
@@ -73,7 +78,7 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
       {/* Image Container */}
       <button
         type="button"
-        onClick={() => onSelect(webtoon)}
+        onClick={handleSelect}
         className="relative h-52 w-full overflow-hidden"
         aria-label={`Ouvrir ${webtoon.title}`}
       >
@@ -136,11 +141,44 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
           </motion.a>
         </div>
 
-        {/* Meta Info */}
-        <div className="flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-widest text-textMuted">
-          <span>{webtoon.language}</span>
-          <span className="h-1 w-1 rounded-full bg-border" />
-          <span>Ch. {webtoon.chapter}</span>
+        {/* Meta Info with Chapter Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-widest text-textMuted">
+            <span>{webtoon.language}</span>
+            <span className="h-1 w-1 rounded-full bg-border" />
+            <span>Ch. {webtoon.chapter}</span>
+          </div>
+          
+          {onChapterChange && (
+            <div className="flex items-center gap-1">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onChapterChange(webtoon, -1)
+                }}
+                className="flex h-6 w-6 items-center justify-center rounded-md border border-border/50 bg-surface/70 text-textMuted transition-all hover:border-accent/30 hover:text-accent"
+                aria-label="Chapitre précédent"
+              >
+                <ChevronDown size={14} />
+              </motion.button>
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onChapterChange(webtoon, 1)
+                }}
+                className="flex h-6 w-6 items-center justify-center rounded-md border border-border/50 bg-surface/70 text-textMuted transition-all hover:border-accent/30 hover:text-accent"
+                aria-label="Chapitre suivant"
+              >
+                <ChevronUp size={14} />
+              </motion.button>
+            </div>
+          )}
         </div>
 
         {/* Rating Stars */}
@@ -174,7 +212,7 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
             type="button"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => onSelect(webtoon)}
+            onClick={handleSelect}
             className="btn-primary py-2 px-4 text-xs"
           >
             Voir détails
@@ -213,7 +251,7 @@ const WebtoonCardComponent = ({ webtoon, onSelect, onEdit, onDelete }: WebtoonCa
 }
 
 const WebtoonCard = memo(WebtoonCardComponent, (prev, next) => {
-  if (prev.onSelect !== next.onSelect || prev.onEdit !== next.onEdit || prev.onDelete !== next.onDelete) {
+  if (prev.onSelect !== next.onSelect || prev.onEdit !== next.onEdit || prev.onDelete !== next.onDelete || prev.onChapterChange !== next.onChapterChange) {
     return false
   }
   const prevWebtoon = prev.webtoon

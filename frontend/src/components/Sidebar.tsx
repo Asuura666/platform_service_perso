@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, type Variants } from 'framer-motion'
 import { BookOpen, Home, Info, ShieldCheck, Sparkles, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
@@ -144,20 +144,20 @@ const SidebarContent = ({ onNavigate, showClose }: { onNavigate?: () => void; sh
   )
 }
 
-const sidebarVariants = {
+const sidebarVariants: Variants = {
   hidden: { x: -320, opacity: 0 },
   visible: { 
     x: 0, 
     opacity: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 300,
       damping: 30
     }
   }
 }
 
-const overlayVariants = {
+const overlayVariants: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 }
 }
